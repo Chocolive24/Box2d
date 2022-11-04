@@ -19,7 +19,7 @@ void Game::init() {
 	window_.setVerticalSyncEnabled(true);
 	window_.setFramerateLimit(60.0f);
 
-	// Init all elements
+	// Player all elements
 	theBall.init();
 
 	// Add a bouncer
