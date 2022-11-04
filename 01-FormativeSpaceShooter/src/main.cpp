@@ -8,9 +8,7 @@
 
 #include "Game.h"
 
-// TODO player::Stop()
-// TODO body->SetLinearVelocity(b2Vec2(0, 0))
-// TODO body->SetlinearDamping(0.9)
+
 
 int main()
 {

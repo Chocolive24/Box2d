@@ -8,10 +8,13 @@
 class Player : public sf::Drawable
 {
 private:
-    const float _pixelMetersRatio = 100.0f;
+    
 
-    // Defining the graphical shape
-    sf::RectangleShape _shape;
+    // Defining the sprite
+    //sf::RectangleShape _shape;
+
+    sf::Texture _texture;
+    sf::Sprite _sprite;
 
     // Defing the box 2D elements
     b2BodyDef _bodyDef;
@@ -23,9 +26,19 @@ private:
 
     // The fixture is what it defines the physic react
     b2FixtureDef _playerFixtureDef;
-    
+
+
 
 public:
+
+    // -------------------------------------------------------------------------------------------
+    // Getters and Setters
+
+    void SetLinearVelocity(b2Vec2 newVelocity) { _body->SetLinearVelocity(newVelocity); }
+    void SetLinearDamping(float newDamping) { _body->SetLinearDamping(newDamping); }
+
+    // -------------------------------------------------------------------------------------------
+
 	void Init(b2World& world);
 
     void Move(b2Vec2 force);

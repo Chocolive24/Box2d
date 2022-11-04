@@ -7,12 +7,11 @@
 
 #include "SFML/Graphics.hpp"
 
-namespace Utility
+class Utility
 {
-	constexpr float pixelMeterRatio = 100.0f;
+public:
+	static b2Vec2 PixelsToMeters(sf::Vector2f pixels);
+	static float PixelToMeters(float pixels);
 
-	b2Vec2 PixelsToMeters(sf::Vector2f pixels);
-	float PixelToMeters(float pixels);
-
-	sf::Vector2f MetersToPixels(b2Vec2 meters);
+	static sf::Vector2f MetersToPixels(b2Vec2 meters);
 };

@@ -10,8 +10,6 @@
 class Game
 {
 private:
-	const float _pixelMetersRatio = 100.0f;
-
 	sf::RenderWindow _window;
 
 	b2Vec2 _gravity;
@@ -20,12 +18,19 @@ private:
 	Player _player;
 
 	sf::Texture _backgroundTexture;
+	sf::Sprite _background;
 
 public:
 
 	Game();
 
 	void Init();
+
+	void CheckInput();
+
+	void Update();
+
+	void Draw();
 
 	int GameLoop();
 };
