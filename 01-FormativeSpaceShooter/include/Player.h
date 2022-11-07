@@ -5,14 +5,15 @@
 #include <box2d/b2_polygon_shape.h>
 #include <SFML/Graphics.hpp>
 
-class Player : public sf::Drawable
+#include "Laser.h"
+
+class Player : public sf::Drawable, public sf::Transformable
 {
 private:
-    
+    // -------------------------------------------------------------------------------------------
+    // Ship attributes.
 
     // Defining the sprite
-    //sf::RectangleShape _shape;
-
     sf::Texture _texture;
     sf::Sprite _sprite;
 
@@ -22,17 +23,30 @@ private:
     b2Body* _body = nullptr;
 
     // Shape of the physical (A box)
-    b2PolygonShape _box;
+    b2PolygonShape _hitBox;
 
     // The fixture is what it defines the physic react
     b2FixtureDef _playerFixtureDef;
 
+    // -------------------------------------------------------------------------------------------
+	// Attack attributes.
 
-
-public:
+    std::vector<Laser*> _lasers;
 
     // -------------------------------------------------------------------------------------------
+	// Player's data attributes.
+
+    sf::RectangleShape _currentLifeBar;
+    sf::RectangleShape _damagedLifeBar;
+    float _currentLife;
+    const float _maxLife = 100.0f;
+
+public:
+    // -------------------------------------------------------------------------------------------
     // Getters and Setters
+
+    b2Body* GetBody() { return _body; }
+    std::vector<Laser*>& GetLasers() { return _lasers; }
 
     void SetLinearVelocity(b2Vec2 newVelocity) { _body->SetLinearVelocity(newVelocity); }
     void SetLinearDamping(float newDamping) { _body->SetLinearDamping(newDamping); }
@@ -41,7 +55,13 @@ public:
 
 	void Init(b2World& world);
 
+    void InitLifeBar();
+
     void Move(b2Vec2 force);
+    void Rotate(float omega);
+
+    void AddLaser(b2World& world);
+    void Shoot(b2World& world);
 
     void Update();
 

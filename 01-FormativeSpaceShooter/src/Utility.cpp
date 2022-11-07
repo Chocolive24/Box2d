@@ -1,5 +1,7 @@
 #include "Utility.h"
 
+
+
 #include "Properties.h"
 
 b2Vec2 Utility::PixelsToMeters(sf::Vector2f pixels)

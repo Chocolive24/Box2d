@@ -7,6 +7,11 @@
 #include "Player.h"
 #include <SFML/Graphics.hpp>
 
+
+#include "Button.h"
+#include "Laser.h"
+#include "Meteor.h"
+
 class Game
 {
 private:
@@ -17,14 +22,24 @@ private:
 
 	Player _player;
 
+	std::vector<Meteor*> _meteors;
+
 	sf::Texture _backgroundTexture;
-	sf::Sprite _background;
+	sf::Sprite _backgroundSprite;
+	std::vector<sf::Sprite> _background;
+
+	Button _startButton;
+	Button _exitButton;
+
+	bool _start = false;
 
 public:
 
 	Game();
 
 	void Init();
+
+	void AddMeteors();
 
 	void CheckInput();
 
