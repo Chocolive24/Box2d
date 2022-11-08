@@ -5,6 +5,7 @@
 #include <box2d/b2_polygon_shape.h>
 #include <SFML/Graphics.hpp>
 
+#include "Bomb.h"
 #include "Laser.h"
 
 class Player : public sf::Drawable, public sf::Transformable
@@ -14,8 +15,11 @@ private:
     // Ship attributes.
 
     // Defining the sprite
-    sf::Texture _texture;
-    sf::Sprite _sprite;
+    sf::Texture _shipTexture;
+    sf::Sprite _shipSprite;
+
+    sf::Texture _fireTexture;
+    sf::Sprite _fireSprite;
 
     // Defing the box 2D elements
     b2BodyDef _bodyDef;
@@ -32,6 +36,8 @@ private:
 	// Attack attributes.
 
     std::vector<Laser*> _lasers;
+    std::vector<Bomb*> _bombs;
+    int _bombNbr = 1;
 
     // -------------------------------------------------------------------------------------------
 	// Player's data attributes.
@@ -40,6 +46,11 @@ private:
     sf::RectangleShape _damagedLifeBar;
     float _currentLife;
     const float _maxLife = 100.0f;
+
+    sf::Texture _livesTexture;
+    sf::Sprite _livesSprite;
+    int _maxLives = 3;
+    std::vector<sf::Sprite> _lives;
 
 public:
     // -------------------------------------------------------------------------------------------
@@ -56,12 +67,14 @@ public:
 	void Init(b2World& world);
 
     void InitLifeBar();
+    void InitLives();
 
     void Move(b2Vec2 force);
     void Rotate(float omega);
 
     void AddLaser(b2World& world);
     void Shoot(b2World& world);
+    void ThrowBomb(b2World& world);
 
     void Update();
 

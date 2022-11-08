@@ -89,7 +89,7 @@ void Game::CheckInput()
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
         {
-            _player.Rotate(100.0f);
+            _player.Rotate(1.0f);
         }
 
         if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) &&
@@ -126,6 +126,11 @@ void Game::CheckInput()
                     _player.Shoot(_world);
                 }
             }
+
+			if (event.key.code == sf::Keyboard::Key::Q)
+			{
+                _player.ThrowBomb(_world);
+			}
         }
         
 
@@ -156,16 +161,13 @@ void Game::Update()
         int32 positionIterations = 2;
         _world.Step(timeStep, velocityIterations, positionIterations);
 
+        //Properties::UpdateTime();
+
         _player.Update();
 
         for (auto& meteor : _meteors)
         {
             meteor->Update();
-        }
-
-        for (auto& laser : _player.GetLasers())
-        {
-            laser->Update();
         }
     }
 
@@ -193,11 +195,6 @@ void Game::Draw()
         for (auto& meteor : _meteors)
         {
             _window.draw(*meteor);
-        }
-
-        for (auto& laser : _player.GetLasers())
-        {
-            _window.draw(*laser);
         }
 
         _window.draw(_player);

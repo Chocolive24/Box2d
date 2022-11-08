@@ -10,17 +10,33 @@ void Player::Init(b2World& world)
     // ---------------------------------------------------------------------------------------------------------
     // Shape Init.
 
-    if (!_texture.loadFromFile("data/sprites/PNG/playerShip1_red.png"))
+    if (!_shipTexture.loadFromFile("data/sprites/PNG/playerShip1_red.png"))
     {
         return;
     }
 
-    _texture.setSmooth(true);
+    _shipTexture.setSmooth(true);
 
-    _sprite.setTexture(_texture);
-    _sprite.setOrigin(_sprite.getGlobalBounds().width / 2.0f, _sprite.getGlobalBounds().height / 2.0f);
+    _shipSprite.setTexture(_shipTexture);
+    _shipSprite.setOrigin(_shipSprite.getGlobalBounds().width / 2.0f, _shipSprite.getGlobalBounds().height / 2.0f);
 
-    //_sprite.setScale(0.8f, 0.8f);
+    /*sf::Color damaged(_shipSprite.getColor().r, _shipSprite.getColor().g,
+        _shipSprite.getColor().b, _shipSprite.getColor().a - 200);
+
+    _shipSprite.setColor(damaged);*/
+
+    //_shipSprite.setScale(0.8f, 0.8f);
+
+    if (!_fireTexture.loadFromFile("data/sprites/PNG/Effects/fire07.png"))
+    {
+        return;
+    }
+
+    _fireTexture.setSmooth(true);
+
+    _fireSprite.setTexture(_fireTexture);
+    _fireSprite.setOrigin(_fireSprite.getGlobalBounds().width / 2.0f, _fireSprite.getGlobalBounds().height / 2.0f);
+
 
     // ---------------------------------------------------------------------------------------------------------
     // Body Def Init.
@@ -37,8 +53,8 @@ void Player::Init(b2World& world)
     // ---------------------------------------------------------------------------------------------------------
     // Physical shape Init.
 
-    float spriteWidth  = Utility::PixelToMeters(_sprite.getGlobalBounds().width);
-    float spriteHeight = Utility::PixelToMeters(_sprite.getGlobalBounds().height);
+    float spriteWidth  = Utility::PixelToMeters(_shipSprite.getGlobalBounds().width);
+    float spriteHeight = Utility::PixelToMeters(_shipSprite.getGlobalBounds().height);
 
     _hitBox.SetAsBox(spriteWidth / 2.0f, spriteHeight / 2.0f);
 
@@ -51,7 +67,12 @@ void Player::Init(b2World& world)
     //FixtureDef.userData.pointer = reinterpret_cast <std::uintptr_t>(&playerBoxData);
     _body->CreateFixture(&_playerFixtureDef);
 
+    // ---------------------------------------------------------------------------------------------------------
+    // Life bar and Lives Init.
+
     InitLifeBar();
+
+    InitLives();
 }
 
 void Player::InitLifeBar()
@@ -71,6 +92,25 @@ void Player::InitLifeBar()
     _damagedLifeBar.setPosition(12, 15);
 }
 
+void Player::InitLives()
+{
+    if (!_livesTexture.loadFromFile("data/sprites/PNG/UI/playerLife1_red.png"))
+    {
+        return;
+    }
+
+    _livesTexture.setSmooth(true);
+
+    for (int width = 0; width < _maxLives; width++)
+    {
+        sf::Sprite sprite;
+        sprite.setTexture(_livesTexture);
+        sprite.setPosition(_currentLifeBar.getPosition().x + sprite.getLocalBounds().width * width * 1.2,
+            _currentLifeBar.getPosition().y + 2 * _currentLifeBar.getLocalBounds().height);
+        _lives.emplace_back(sprite);
+    }
+}
+
 void Player::Move(b2Vec2 force)
 {
     _body->ApplyForceToCenter((force), true);
@@ -79,8 +119,9 @@ void Player::Move(b2Vec2 force)
 void Player::Rotate(float omega)
 {
     _body->ApplyTorque(omega, true);
-    _body->SetTransform(_body->GetPosition(), 1.0f);
-    _sprite.rotate(2.0f);
+    _body->SetTransform(_body->GetPosition(), omega);
+    
+    _shipSprite.rotate(_body->GetAngle());
 }
 
 void Player::AddLaser(b2World& world)
@@ -99,6 +140,23 @@ void Player::Shoot(b2World& world)
 	laser->Move(b2Vec2(0, 50));
 }
 
+void Player::ThrowBomb(b2World& world)
+{
+    if (_bombNbr > 0)
+    {
+        Bomb* bomb = new Bomb;
+        bomb->Init(world, _body->GetPosition());
+        _bombs.emplace_back(bomb);
+
+        bomb->PlaySound();
+
+        bomb->Move(b2Vec2(0, 50));
+
+        _bombNbr -= 1;
+    }
+    
+}
+
 void Player::Update()
 {
     // Get the position of the body
@@ -108,12 +166,28 @@ void Player::Update()
     sf::Vector2f graphicPosition(Utility::MetersToPixels(b2Vec2(bodyPos)));
 
     // Set the position of the Graphic object
-    _sprite.setPosition(graphicPosition);
+    _shipSprite.setPosition(graphicPosition);
+
+    _fireSprite.setPosition(graphicPosition.x, 
+        graphicPosition.y + _fireSprite.getLocalBounds().height + _shipSprite.getLocalBounds().height / 2.0f);
+
+    std::cout << _body->GetAngle() << std::endl;
+
+    
 
 
+    for (auto& laser : _lasers)
+    {
+        laser->Update();
+    }
+
+    for (auto& bomb : _bombs)
+    {
+        bomb->Update();
+    }
 
     /*std::cout << _hitBox.m_vertices->x << " " << _hitBox.m_vertices->y << std::endl;
-    std::cout << _sprite.getGlobalBounds().width << " " << _sprite.getGlobalBounds().height << std::endl;*/
+    std::cout << _shipSprite.getGlobalBounds().width << " " << _shipSprite.getGlobalBounds().height << std::endl;*/
 
     //std::cout << _body->GetLinearVelocity().x << " " << _body->GetLinearVelocity().y << std::endl;
     //std::cout << _body->GetAngularVelocity() << std::endl;
@@ -123,7 +197,23 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     states.transform *= getTransform();
 
-    target.draw(_sprite, states);
+    target.draw(_shipSprite, states);
+    //target.draw(_fireSprite, states);
+
+    for (auto& laser : _lasers)
+    {
+        target.draw(*laser);
+    }
+    for (auto& bomb : _bombs)
+    {
+        target.draw(*bomb);
+    }
+
     target.draw(_damagedLifeBar);
     target.draw(_currentLifeBar, states);
+    for (auto& lives : _lives)
+    {
+        target.draw(lives);
+    }
+    
 }
