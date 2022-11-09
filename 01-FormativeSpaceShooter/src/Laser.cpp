@@ -11,7 +11,8 @@ void Laser::Init(b2World& world, b2Vec2 playerPos)
     createSprite("data/sprites/PNG/Lasers/laserRed01.png");
     createBody(world, playerPos);
     _hitBox = createPolygonHitBox();
-    createFixture(_hitBox, this);
+    _userData->SetType(UserDataType::LASER);
+    createFixture(_hitBox, (int)_userData->GetType());
 
     /*if (!_texture.loadFromFile("data/sprites/PNG/Lasers/laserRed01.png"))
     {

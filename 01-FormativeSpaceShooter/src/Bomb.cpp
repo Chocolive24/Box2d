@@ -14,7 +14,8 @@ void Bomb::Init(b2World& world, b2Vec2 playerPos)
     createSprite("data/sprites/PNG/Lasers/laserRed08.png");
     createBody(world, playerPos);
     b2CircleShape hitBox = createCicrleHitBox();
-    createFixture(hitBox, this);
+    _userData->SetType(UserDataType::BOMB);
+    createFixture(hitBox, (int)_userData->GetType());
 
     std::cout << hitBox.m_radius;
 

@@ -20,9 +20,13 @@ void Player::Init(b2World& world)
     // ---------------------------------------------------------------------------------------------------------
     // Body, Hit box, and Fixture Init.
 
+    _startPosition = Utility::PixelsToMeters(sf::Vector2f(Properties::WINDOW_WIDTH / 2.0f,
+														  Properties::WINDOW_HEIGHT / 2.0f));
     createBody(world, _startPosition);
     _hitBox = createPolygonHitBox();
-    createFixture(_hitBox, this);
+    _userData->SetType(UserDataType::PLAYER);
+    createFixture(_hitBox, (int)_userData->GetType());
+    
 
     // ---------------------------------------------------------------------------------------------------------
     // Life bar and Lives Init.
@@ -146,7 +150,7 @@ void Player::AddLaser(b2World& world)
 void Player::Shoot(b2World& world)
 {
     Laser* laser = new Laser;
-    b2Vec2 startPos(_body->GetPosition().x * 2, (_body->GetPosition().y + 1.0f) * 2);
+    b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 1.0f);
     laser->Init(world, startPos);
     _lasers.emplace_back(laser);
 
@@ -160,7 +164,7 @@ void Player::ThrowBomb(b2World& world)
     if (_bombNbr > 0)
     {
         Bomb* bomb = new Bomb;
-        b2Vec2 startPos(_body->GetPosition().x * 2, (_body->GetPosition().y + 1.0f) * 2);
+        b2Vec2 startPos(_body->GetPosition().x, (_body->GetPosition().y + 1.0f));
         bomb->Init(world, startPos);
         _bombs.emplace_back(bomb);
 

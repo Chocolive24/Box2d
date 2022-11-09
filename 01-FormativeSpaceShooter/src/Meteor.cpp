@@ -1,5 +1,7 @@
 #include "Meteor.h"
 
+#include <iostream>
+
 #include "Properties.h"
 #include "Utility.h"
 
@@ -10,13 +12,16 @@ void Meteor::Init(b2World& world)
 
     createSprite("data/sprites/PNG/Meteors/meteorBrown_big1.png");
 
-    sf::Vector2f randomPixelPos(Utility::GetRandomNumber<float>(0.0f, Properties::WINDOW_WIDTH),
-        Utility::GetRandomNumber<float>(0.0f, Properties::WINDOW_HEIGHT));
+    sf::Vector2f randomPixelPos(Utility::GetRandomFloat(0.0f, Properties::WINDOW_WIDTH),
+								Utility::GetRandomFloat(0.0f, Properties::WINDOW_HEIGHT));
     b2Vec2 randomMeterPos(Utility::PixelsToMeters(randomPixelPos));
+
+    std::cout << randomMeterPos.x << " " << randomMeterPos.y << std::endl;
 
     createBody(world, randomMeterPos);
     b2PolygonShape hitBox = createPolygonHitBox();
-    createFixture(hitBox, this);
+    _userData->SetType(UserDataType::METEOR);
+    createFixture(hitBox, (int)_userData->GetType());
 
     /*if (!_texture.loadFromFile("data/sprites/PNG/Meteors/meteorBrown_big1.png"))
     {
@@ -68,8 +73,8 @@ void Meteor::Init(b2World& world)
 
     _sound.setBuffer(_buffer);
 
-    _velocity.x = Utility::GetRandomNumber<float>(0.1, 3);
-    _velocity.y = Utility::GetRandomNumber<float>(0.1, 3);
+    _velocity.x = Utility::GetRandomFloat(0.1f, 3);
+    _velocity.y = Utility::GetRandomFloat(0.1f, 3);
 }
 
 void Meteor::Move()

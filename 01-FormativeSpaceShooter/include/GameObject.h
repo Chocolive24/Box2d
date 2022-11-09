@@ -6,6 +6,8 @@
 #include <box2d/b2_polygon_shape.h>
 #include <SFML/Graphics.hpp>
 
+#include "UserData.h"
+
 /**
  * \brief Class that create basics game objects elements.
  */
@@ -22,6 +24,10 @@ protected:
 	// Body and fixture attributes.
 	b2Body* _body = nullptr;
 
+	UserData* _userData;
+
+	bool _addedToGroupIndex = false;
+
 	b2FixtureDef _fixtureDef;
 
 	// ---------------------------------------------------------------------------------------------------
@@ -33,7 +39,7 @@ protected:
 	b2PolygonShape createPolygonHitBox();
 	b2CircleShape createCicrleHitBox();
 
-	void createFixture(b2Shape& hitBox, void* thisPtr);
+	void createFixture(b2Shape& hitBox, int userDataIndex);
 
 	// ---------------------------------------------------------------------------------------------------
 	// Methods related to the game loop.

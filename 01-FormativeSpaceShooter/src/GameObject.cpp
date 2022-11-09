@@ -29,7 +29,8 @@ void GameObject::createBody(b2World& world, b2Vec2 startPosition)
     bodyDef.type = b2_dynamicBody;
     //_bodyDef.linearDamping = 1.5f;
 
-    bodyDef.position.Set(startPosition.x / 2.0f, startPosition.y / 2.0f);
+    bodyDef.position.Set(startPosition.x, startPosition.y);
+    _userData = new UserData();
 
     _body = world.CreateBody(&bodyDef);
 
@@ -57,7 +58,7 @@ b2CircleShape GameObject::createCicrleHitBox()
     return hitBox;
 }
 
-void GameObject::createFixture(b2Shape& hitBox, void* thisPtr)
+void GameObject::createFixture(b2Shape& hitBox, int userDataIndex)
 {
     //_fixtureDef.shape = &hitBox;
     //_fixtureDef.density = 2.0f;
@@ -68,9 +69,15 @@ void GameObject::createFixture(b2Shape& hitBox, void* thisPtr)
     _fixtureDef.shape = &hitBox;
     _fixtureDef.density = 2.0f;
     _fixtureDef.friction = 0.0f;
-    //FixtureDef.userData.pointer = reinterpret_cast <std::uintptr_t>(&playerBoxData);
 
-    _fixtureDef.userData.pointer = reinterpret_cast<std::uintptr_t>(thisPtr);
+    if(!_addedToGroupIndex)
+    {
+        _fixtureDef.filter.groupIndex = userDataIndex;
+        _addedToGroupIndex = true;
+    }
+    
+    //FixtureDef.userData.pointer = reinterpret_cast <std::uintptr_t>(&playerBoxData);
+    _fixtureDef.userData.pointer = reinterpret_cast<std::uintptr_t>(_userData);
     _body->CreateFixture(&_fixtureDef);
 }
 

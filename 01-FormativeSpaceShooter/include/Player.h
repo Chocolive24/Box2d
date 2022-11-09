@@ -45,8 +45,8 @@ private:
     // -------------------------------------------------------------------------------------------
 	// Player's data attributes.
 
-    b2Vec2 _startPosition = Utility::PixelsToMeters(sf::Vector2f(Properties::WINDOW_WIDTH,
-												    Properties::WINDOW_HEIGHT));
+    b2Vec2 _startPosition;
+
     sf::RectangleShape _currentLifeBar;
     sf::RectangleShape _damagedLifeBar;
     int _currentLife;
@@ -60,8 +60,8 @@ private:
     bool _isDead = false;
 
 public:
-
     Player(b2World& world);
+
     // -------------------------------------------------------------------------------------------
     // Getters and Setters
 
