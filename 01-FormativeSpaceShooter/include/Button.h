@@ -6,7 +6,6 @@ class Button : public sf::Drawable
 {
 private:
 	sf::RectangleShape _shape;
-	
 	sf::Font _font;
 
 	sf::Text _text;

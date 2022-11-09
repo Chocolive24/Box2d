@@ -18,9 +18,10 @@ void Button::InitShape(float x, float y)
 	_shape.setSize(sf::Vector2f(300, 100));
 	_shape.setOrigin(_shape.getLocalBounds().width / 2.0f, _shape.getLocalBounds().height / 2.0f);
 	_shape.setPosition(x, y);
-	_shape.setFillColor(sf::Color(50, 50, 50));
-	_shape.setOutlineThickness(2.0f);
-	_shape.setOutlineColor(sf::Color::White);
+	//_shape.setFillColor(sf::Color(50, 50, 50));
+	_shape.setFillColor(Properties::DARKGREEN);
+	_shape.setOutlineThickness(3.0f);
+	_shape.setOutlineColor(sf::Color::Black);
 }
 
 void Button::InitText(std::string string)
@@ -34,7 +35,7 @@ void Button::InitText(std::string string)
 
 	_text.setString(string);
 	_text.setCharacterSize(60);
-	_text.setFillColor(sf::Color::White);
+	_text.setFillColor(Properties::GREEN);
 	_text.setStyle(sf::Text::Bold);
 
 	_text.setOrigin(_text.getLocalBounds().width / 2.0f, _text.getLocalBounds().height / 2.0f);
@@ -54,6 +55,8 @@ void Button::InitKeySprite(std::string path)
 	_sprite.setScale(2, 2);
 	_sprite.setOrigin(_sprite.getLocalBounds().width / 2.0f, 
 					  _sprite.getLocalBounds().height / 2.0f );
+
+	_sprite.setColor(Properties::GREEN);
 
 	_sprite.setPosition(_shape.getPosition().x, _shape.getPosition().y + _shape.getLocalBounds().height / 1.75f);
 }

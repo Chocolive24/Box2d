@@ -12,9 +12,6 @@
 
 int main()
 {
-    const float pixelMetersRatio = 100.0f;
-
-    
     Game game;
 
     game.Init();

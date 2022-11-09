@@ -7,7 +7,8 @@
 
 Game::Game() :
 	_gravity(0.0f, 0.0f),
-	_world(_gravity)
+	_world(_gravity),
+	_player(_world)
 {
 }
 
@@ -20,15 +21,22 @@ void Game::Init()
     _window.setVerticalSyncEnabled(true);
     _window.setFramerateLimit(120);
 
+    _world.SetContactListener(&_contactListener);
+
+    CreateBackground();
+
     _startButton.Init(windowSize.x / 2.0f, windowSize.y / 4.0f, 
 					  "START", "data/sprites/PNG/Keys/Space-Key.png");
     _exitButton.Init(windowSize.x / 2.0f, windowSize.y / 1.5f,
         "EXIT", "data/sprites/PNG/Keys/Esc-Key.png");
 
-    _player.Init(_world);
+    //_player.Init(_world);
 
     AddMeteors();
+}
 
+void Game::CreateBackground()
+{
     if (!_backgroundTexture.loadFromFile("data/sprites/Backgrounds/blue.png"))
     {
         return; // error 
@@ -40,14 +48,14 @@ void Game::Init()
 
     for (int width = 0; width < factorX; width++)
     {
-	    for (int height = 0; height < factorY; height++)
-	    {
+        for (int height = 0; height < factorY; height++)
+        {
             sf::Sprite sprite;
             sprite.setTexture(_backgroundTexture);
-            sprite.setPosition(sprite.getLocalBounds().width * width, 
-							   sprite.getLocalBounds().height * height);
+            sprite.setPosition(sprite.getLocalBounds().width * width,
+                sprite.getLocalBounds().height * height);
             _background.emplace_back(sprite);
-	    }
+        }
     }
 }
 
@@ -67,6 +75,7 @@ void Game::CheckInput()
 {
     if (_start)
     {
+        
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
         {
             _player.Move(b2Vec2(30, 0));
@@ -89,7 +98,12 @@ void Game::CheckInput()
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
         {
-            _player.Rotate(1.0f);
+            _player.Rotate(-3.0f);
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
+        {
+            _player.Rotate(3.0f);
         }
 
         if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) &&
@@ -100,6 +114,7 @@ void Game::CheckInput()
             _player.SetLinearDamping(1.5f);
             _player.Move(b2Vec2(0, 0));
         }
+        
     }
 
     sf::Event event;
@@ -132,20 +147,6 @@ void Game::CheckInput()
                 _player.ThrowBomb(_world);
 			}
         }
-        
-
-            //case sf::Event::MouseButtonReleased:
-
-            //    // Put in mouse position
-            //    body->SetTransform(b2Vec2(event.mouseButton.x / _pixelMetersRatio,
-            //        -1.0f * event.mouseButton.y / _pixelMetersRatio), body->GetAngle());
-            //    //// Reset the velocity (Speed)
-            //    body->SetLinearVelocity(b2Vec2_zero);
-
-
-            //    //box.setPosition(sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
-            //    break;
-
     }
 }
 
@@ -163,20 +164,17 @@ void Game::Update()
 
         //Properties::UpdateTime();
 
-        _player.Update();
+        _player.update();
 
         for (auto& meteor : _meteors)
         {
-            meteor->Update();
+            meteor->update();
         }
     }
-
-    
 }
 
 void Game::Draw()
 {
-    // Graphical Region
     _window.clear(sf::Color::Black);
     
     for (auto& backgroundSprite : _background)
@@ -205,8 +203,7 @@ int Game::GameLoop()
 {
     while (_window.isOpen())
     {
-        /*std::cout << "body position [" << body->GetPosition().x << ":" << body->GetPosition().y
-            << "]|shape position [" << box.getPosition().x << ":" << box.getPosition().y << "]" << std::endl;*/
+       
 
         /*
         if (body->GetPosition().y < -(window.getSize().y / pixelMetersRatio))

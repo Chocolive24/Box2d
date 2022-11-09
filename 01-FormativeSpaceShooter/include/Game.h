@@ -9,6 +9,7 @@
 
 
 #include "Button.h"
+#include "ContactListener.h"
 #include "Laser.h"
 #include "Meteor.h"
 
@@ -19,6 +20,8 @@ private:
 
 	b2Vec2 _gravity;
 	b2World _world;
+
+	ContactListener _contactListener;
 
 	Player _player;
 
@@ -38,6 +41,8 @@ public:
 	Game();
 
 	void Init();
+
+	void CreateBackground();
 
 	void AddMeteors();
 
