@@ -3,21 +3,13 @@
 #include <iostream>
 #include <Box2D/b2_circle_shape.h>
 
+#include "Game.h"
 #include "Properties.h"
 #include "Utility.h"
 
-void Bomb::Init(b2World& world, b2Vec2 playerPos)
+Bomb::Bomb(Game& game, b2Vec2 playerPos) : _game(game)
 {
-    // ---------------------------------------------------------------------------------------------------------
-    // Shape Init.
-
     createSprite("data/sprites/PNG/Lasers/laserRed08.png");
-    createBody(world, playerPos);
-    b2CircleShape hitBox = createCicrleHitBox();
-    _userData->SetType(UserDataType::BOMB);
-    createFixture(hitBox, (int)_userData->GetType());
-
-    std::cout << hitBox.m_radius;
 
     if (!_buffer.loadFromFile("data/sound/bomb.wav"))
     {
@@ -26,6 +18,23 @@ void Bomb::Init(b2World& world, b2Vec2 playerPos)
 
     _sound.setBuffer(_buffer);
 
+    createBody(_game.GetWorld(), playerPos);
+    b2CircleShape hitBox = createCicrleHitBox();
+    _userData = new UserData(*this);
+    _userData->SetType(UserDataType::BOMB);
+
+    createFixture(hitBox, (int16)_userData->GetType(), _userData);
+}
+
+Bomb::~Bomb()
+{
+    _game.GetWorld().DestroyBody(_body);
+}
+
+void Bomb::Init(b2World& world, b2Vec2 playerPos)
+{
+    // ---------------------------------------------------------------------------------------------------------
+    // Shape Init.
 }
 
 void Bomb::Move(b2Vec2 force)
@@ -33,9 +42,9 @@ void Bomb::Move(b2Vec2 force)
     _body->ApplyForceToCenter(force, true);
 }
 
-void Bomb::update()
+void Bomb::update(sf::Time elapsed)
 {
-    GameObject::update();
+    GameObject::update(elapsed);
 
     /*if (Properties::TOTALELAPSED.asMilliseconds() >= Properties::BOMBMOVEMENT)
     {
@@ -45,6 +54,6 @@ void Bomb::update()
 
 void Bomb::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(_sprite, states);
+    GameObject::draw(target, states);
 }
 

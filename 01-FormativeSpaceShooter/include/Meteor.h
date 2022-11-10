@@ -8,39 +8,37 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
+class Game;
+
 class Meteor : public GameObject
 {
 private:
-	// ------------------------------------------------
-	// Sprite
 
-	//sf::Texture _texture;
-	//sf::Sprite _sprite;
-
-	//// ------------------------------------------------
-	//// Box 2d
-
-	//b2BodyDef _bodyDef;
-
-	//b2Body* _body = nullptr;
-
-	//// Shape of the physical (A box)
-	//b2PolygonShape _hitBox;
-
-	//// The fixture is what it defines the physic react
-	//b2FixtureDef FixtureDef;
+	Game& _game;
 
 	sf::Sound _sound;
 	sf::SoundBuffer _buffer;
 
 	b2Vec2 _velocity;
 
+	bool _isDestroyed = false;
+
 public:
+	Meteor(Game& game);
+	~Meteor();
+
+	bool IsDestroyed() { return _isDestroyed; }
+	void SetToDestroyed() { _isDestroyed = true; }
+
 	void Init(b2World& world);
+
+	b2Vec2 InitRndPosAndVelocity();
 
 	void Move();
 
-	void update() override;
+	void SetColor() { _sprite.setColor(sf::Color::Black); }
+
+	void update(sf::Time elapsed) override;
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

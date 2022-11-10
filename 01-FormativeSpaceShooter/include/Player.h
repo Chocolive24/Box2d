@@ -1,4 +1,5 @@
 #pragma once
+#include <list>
 #include <box2d/b2_body.h>
 #include <box2d/b2_world.h>
 #include <box2d/b2_fixture.h>
@@ -8,74 +9,60 @@
 #include "Bomb.h"
 #include "GameObject.h"
 #include "Laser.h"
-#include "Properties.h"
-#include "Utility.h"
+
+class Game;
 
 class Player : public GameObject
 {
 private:
-    // -------------------------------------------------------------------------------------------
-    // Ship attributes.
-
-    // Defining the sprite
-    /*sf::Texture _shipTexture;
-    sf::Sprite _shipSprite;*/
+    Game& _game;
 
     sf::Texture _fireTexture;
     sf::Sprite _fireSprite;
 
-    // Defing the box 2D elements
-    /*b2BodyDef _bodyDef;
-    
-    b2Body* _body = nullptr;*/
-
     // Shape of the physical (A box)
     b2PolygonShape _hitBox;
-
-    //// The fixture is what it defines the physic react
-    //b2FixtureDef _playerFixtureDef;
 
     // -------------------------------------------------------------------------------------------
 	// Attack attributes.
 
-    std::vector<Laser*> _lasers;
-    std::vector<Bomb*> _bombs;
-    int _bombNbr = 1;
+    std::list<Laser> _lasers;
+    std::list<Bomb> _bombs;
+    int _bombNbr = 3;
 
     // -------------------------------------------------------------------------------------------
 	// Player's data attributes.
 
     b2Vec2 _startPosition;
 
-    sf::RectangleShape _currentLifeBar;
-    sf::RectangleShape _damagedLifeBar;
     int _currentLife;
-    const int _maxLife = 100;
+    int _maxLife = 100;
 
-    sf::Texture _livesTexture;
-    sf::Sprite _livesSprite;
-    int _maxLives = 3;
-    std::vector<sf::Sprite> _lives;
+    int _lives = 3;
 
-    bool _isDead = false;
+    bool _canShoot = true;
+    sf::Time _lastShotDuration;
 
 public:
-    Player(b2World& world);
+    Player(Game& game);
 
     // -------------------------------------------------------------------------------------------
     // Getters and Setters
 
     b2Body* GetBody() { return _body; }
-    std::vector<Laser*>& GetLasers() { return _lasers; }
 
     void SetLinearVelocity(b2Vec2 newVelocity) { _body->SetLinearVelocity(newVelocity); }
     void SetLinearDamping(float newDamping) { _body->SetLinearDamping(newDamping); }
 
-    void SetNewColor() { _sprite.setColor(sf::Color::Green); }
-    void SetDamage(int damages) { _currentLife -= damages; }
 
-    bool GetIsDead() { return _isDead; }
-    void SetIsDead() { if (_lives.empty()) _isDead = true; }
+    int GetCurrentLife() { return _currentLife; }
+    int GetMaxLife() { return _maxLife; }
+    int GetLives() { return _lives; }
+    bool CanShoot() { return _canShoot; }
+    void SetCanShootToFalse() { _canShoot = false; }
+
+    void SetCurrentLifeToMax() { _currentLife = _maxLife; }
+    void TakeDamage(int damage) { _currentLife -= damage; }
 
     // -------------------------------------------------------------------------------------------
 
@@ -91,7 +78,7 @@ public:
     void Shoot(b2World& world);
     void ThrowBomb(b2World& world);
 
-    void update() override;
+    void update(sf::Time elapsed) override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

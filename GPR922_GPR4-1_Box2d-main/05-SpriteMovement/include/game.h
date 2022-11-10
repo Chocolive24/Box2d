@@ -6,7 +6,7 @@
 #include "box2d/b2_world.h"
 
 #include "bouncer.h"
-#include "lifeBar.h"
+#include "LifeBar.h"
 #include "ship.h"
 #include "core/contact_listener.h"
 #include "managers/missileManager.h"

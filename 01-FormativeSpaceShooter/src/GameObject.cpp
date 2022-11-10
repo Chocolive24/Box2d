@@ -30,7 +30,6 @@ void GameObject::createBody(b2World& world, b2Vec2 startPosition)
     //_bodyDef.linearDamping = 1.5f;
 
     bodyDef.position.Set(startPosition.x, startPosition.y);
-    _userData = new UserData();
 
     _body = world.CreateBody(&bodyDef);
 
@@ -53,19 +52,14 @@ b2CircleShape GameObject::createCicrleHitBox()
 {
     b2CircleShape hitBox;
 
-    hitBox.m_radius = Utility::PixelToMeters(_sprite.getLocalBounds().width / 2.0f);
-
+    // Radius = 90% of the half width of the sprite.
+    hitBox.m_radius = Utility::PixelToMeters((_sprite.getLocalBounds().width / 2.0f) * 0.90f);
+    
     return hitBox;
 }
 
-void GameObject::createFixture(b2Shape& hitBox, int userDataIndex)
+void GameObject::createFixture(b2Shape& hitBox, int16 userDataIndex, UserData* userData)
 {
-    //_fixtureDef.shape = &hitBox;
-    //_fixtureDef.density = 2.0f;
-    //_fixtureDef.friction = 0.0f;
-    ////FixtureDef.userData.pointer = reinterpret_cast <std::uintptr_t>(&playerBoxData);
-    //_body->CreateFixture(&_fixtureDef);
-
     _fixtureDef.shape = &hitBox;
     _fixtureDef.density = 2.0f;
     _fixtureDef.friction = 0.0f;
@@ -75,14 +69,15 @@ void GameObject::createFixture(b2Shape& hitBox, int userDataIndex)
         _fixtureDef.filter.groupIndex = userDataIndex;
         _addedToGroupIndex = true;
     }
-    
-    //FixtureDef.userData.pointer = reinterpret_cast <std::uintptr_t>(&playerBoxData);
-    _fixtureDef.userData.pointer = reinterpret_cast<std::uintptr_t>(_userData);
+
+    _fixtureDef.userData.pointer = reinterpret_cast<std::uintptr_t>(userData);
     _body->CreateFixture(&_fixtureDef);
 }
 
-void GameObject::update()
+void GameObject::update(sf::Time elapsed)
 {
+    //_totalElapsed += elapsed;
+
     b2Vec2 bodyPos = _body->GetPosition();
 
     // Translate meters to pixels

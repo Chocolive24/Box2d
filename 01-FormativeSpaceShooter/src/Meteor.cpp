@@ -1,92 +1,75 @@
 #include "Meteor.h"
 
 #include <iostream>
+#include <box2d/b2_circle_shape.h>
 
+#include "Game.h"
 #include "Properties.h"
 #include "Utility.h"
+
+Meteor::Meteor(Game& game) : _game(game)
+{
+    createSprite("data/sprites/PNG/Meteors/meteorBrown_big1.png");
+
+    b2Vec2 randomMeterPos = InitRndPosAndVelocity();
+
+    createBody(_game.GetWorld(), randomMeterPos);
+    b2CircleShape hitBox = createCicrleHitBox();
+    _userData = new UserData(*this);
+    _userData->SetType(UserDataType::METEOR);
+
+    createFixture(hitBox, (int16)_userData->GetType(), _userData);
+}
+
+Meteor::~Meteor()
+{
+    _game.GetWorld().DestroyBody(_body);
+}
 
 void Meteor::Init(b2World& world)
 {
     // ---------------------------------------------------------------------------------------------------------
     // Shape Init.
 
-    createSprite("data/sprites/PNG/Meteors/meteorBrown_big1.png");
+    
+}
 
-    sf::Vector2f randomPixelPos(Utility::GetRandomFloat(0.0f, Properties::WINDOW_WIDTH),
-								Utility::GetRandomFloat(0.0f, Properties::WINDOW_HEIGHT));
-    b2Vec2 randomMeterPos(Utility::PixelsToMeters(randomPixelPos));
+b2Vec2 Meteor::InitRndPosAndVelocity()
+{
+    // 1 = N, 2 = E, 3 = S, 4 = W.
+    int rndCardinalPnt = Utility::GetRandomInt(1, 1);
 
-    std::cout << randomMeterPos.x << " " << randomMeterPos.y << std::endl;
+    sf::Vector2f randomPixelPos;
 
-    createBody(world, randomMeterPos);
-    b2PolygonShape hitBox = createPolygonHitBox();
-    _userData->SetType(UserDataType::METEOR);
-    createFixture(hitBox, (int)_userData->GetType());
-
-    /*if (!_texture.loadFromFile("data/sprites/PNG/Meteors/meteorBrown_big1.png"))
+    if (rndCardinalPnt == 1)
     {
-        return;
-    }*/
+        randomPixelPos = sf::Vector2f(Utility::GetRandomFloat(0.0f, Properties::WINDOW_WIDTH),
+            Utility::GetRandomFloat(-50.0f, -20.0f));
 
-    //_texture.setSmooth(true);
-
-    //_sprite.setTexture(_texture);
-    //_sprite.setOrigin(_sprite.getGlobalBounds().width / 2.0f, _sprite.getGlobalBounds().height / 2.0f);
-
-    //// ---------------------------------------------------------------------------------------------------------
-    //// Body Def Init.
-
-    //_bodyDef.fixedRotation = true;
-    //_bodyDef.type = b2_dynamicBody;
-    ////_bodyDef.linearDamping = 1.5f;
-
-    //sf::Vector2f randomPixelPos(Utility::GetRandomNumber<float>(0.0f, Properties::WINDOW_WIDTH),
-    //    Utility::GetRandomNumber<float>(0.0f, Properties::WINDOW_HEIGHT));
-
-    //b2Vec2 randomMeterPos(Utility::PixelsToMeters(randomPixelPos));
-
-    //_bodyDef.position.Set(randomMeterPos.x, randomMeterPos.y);
-
-    //_body = world.CreateBody(&_bodyDef);
-
-    //// ---------------------------------------------------------------------------------------------------------
-    //// Physical shape Init.
-
-    //float spriteWidth = Utility::PixelToMeters(_sprite.getGlobalBounds().width);
-    //float spriteHeight = Utility::PixelToMeters(_sprite.getGlobalBounds().height);
-
-    //_hitBox.SetAsBox(spriteWidth / 2.0f, spriteHeight / 2.0f);
-
-    //// ---------------------------------------------------------------------------------------------------------
-    //// Fixture Init.
-
-    //FixtureDef.shape = &_hitBox;
-    //FixtureDef.density = 2.0f;
-    //FixtureDef.friction = 0.0f;
-    ////FixtureDef.userData.pointer = reinterpret_cast <std::uintptr_t>(&playerBoxData);
-    //_body->CreateFixture(&FixtureDef);
-
-    if (!_buffer.loadFromFile("data/sound/sfx_laser2.wav"))
-    {
-        return;
+        _velocity.x = 0.0f;
+        _velocity.y = Utility::GetRandomFloat(-5.0f, -1.0f);
     }
 
-    _sound.setBuffer(_buffer);
+    // TODO les autres point cardinaux
+    // TODO rectangle shape red quand meteor detruit -> il grandit jusqu'à genre 50 pixels et fait des dégàts
+    // TODO same for bomb but with 200 pixels.
 
-    _velocity.x = Utility::GetRandomFloat(0.1f, 3);
-    _velocity.y = Utility::GetRandomFloat(0.1f, 3);
+    
+    b2Vec2 randomMeterPos(Utility::PixelsToMeters(randomPixelPos));
+
+    return randomMeterPos;
 }
 
 void Meteor::Move()
 {
-    _body->ApplyForceToCenter(_velocity, true);
+    _body->SetLinearVelocity(_body->GetLinearVelocity() + _velocity);
 }
 
-void Meteor::update()
+void Meteor::update(sf::Time elapsed)
 {
-    GameObject::update();
+    GameObject::update(elapsed);
 
-    Move();
+    //Move();
 
     //// Get the position of the body
     //b2Vec2 bodyPos = _body->GetPosition();
@@ -100,5 +83,5 @@ void Meteor::update()
 
 void Meteor::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(_sprite, states);
+    GameObject::draw(target, states);
 }

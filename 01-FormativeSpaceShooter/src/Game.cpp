@@ -8,8 +8,17 @@
 Game::Game() :
 	_gravity(0.0f, 0.0f),
 	_world(_gravity),
-	_player(_world)
+	_player(*this),
+	_lifeBar(_player)
+	
 {
+    for (int width = 0; width < _player.GetLives(); width++)
+    {
+        _lives.emplace_back(_player);
+
+        _lives.back().SetPosition(_lifeBar.GetPosition().x + _lives.back().GetLocalBounds().width * width * 1.2f,
+            _lifeBar.GetPosition().y + 2 * _lifeBar.GetLocalBounds().height);
+    }
 }
 
 void Game::Init()
@@ -29,10 +38,6 @@ void Game::Init()
 					  "START", "data/sprites/PNG/Keys/Space-Key.png");
     _exitButton.Init(windowSize.x / 2.0f, windowSize.y / 1.5f,
         "EXIT", "data/sprites/PNG/Keys/Esc-Key.png");
-
-    //_player.Init(_world);
-
-    AddMeteors();
 }
 
 void Game::CreateBackground()
@@ -61,39 +66,42 @@ void Game::CreateBackground()
 
 void Game::AddMeteors()
 {
-    for (int i = 0; i <5; i++)
+    _meteors.emplace_back(*this);
+}
+
+void Game::UpdateLives()
+{
+    if (_player.GetCurrentLife() <= 0 && !_isPlayerDead)
     {
-        Meteor* meteor = new Meteor;
-
-        meteor->Init(_world);
-
-        _meteors.emplace_back(meteor);
+        _lives.back().SetToLost();
+        _player.SetCurrentLifeToMax();
     }
+
+    std::erase_if(_lives, [](Life& life) { return life.IsLost(); });
 }
 
 void Game::CheckInput()
 {
     if (_start)
     {
-        
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
         {
-            _player.Move(b2Vec2(30, 0));
+            _player.Move(b2Vec2(0.3f, 0));
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
         {
-            _player.Move(b2Vec2(-30, 0));
+            _player.Move(b2Vec2(-0.3f, 0));
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
         {
-            _player.Move(b2Vec2(0, 30));
+            _player.Move(b2Vec2(0, 0.3f));
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
         {
-            _player.Move(b2Vec2(0, -30));
+            _player.Move(b2Vec2(0, -0.3f));
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
@@ -112,9 +120,7 @@ void Game::CheckInput()
             !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
         {
             _player.SetLinearDamping(1.5f);
-            _player.Move(b2Vec2(0, 0));
         }
-        
     }
 
     sf::Event event;
@@ -138,7 +144,10 @@ void Game::CheckInput()
 
                 else
                 {
-                    _player.Shoot(_world);
+                    if (_player.CanShoot())
+                    {
+                        _player.Shoot(_world);
+                    }
                 }
             }
 
@@ -150,30 +159,54 @@ void Game::CheckInput()
     }
 }
 
-void Game::Update()
+void Game::UpdateGame(sf::Time elapsed)
 {
-    CheckInput();
-
     if (_start)
     {
+        _totalElapsed += elapsed;
+
+        if (_totalElapsed.asSeconds() >= Properties::METEOR_COOLDOWN)
+        {
+            _meteors.emplace_back(*this);
+            _meteors.back().Move();
+
+            _totalElapsed = sf::Time::Zero;
+        }
+
         // Updating the world with a delay
         float timeStep = 1.0f / 60.0f;
         int32 velocityIterations = 6;
         int32 positionIterations = 2;
         _world.Step(timeStep, velocityIterations, positionIterations);
 
-        //Properties::UpdateTime();
+        UpdateGameObjects(elapsed);
 
-        _player.update();
+        _lifeBar.Update();
 
-        for (auto& meteor : _meteors)
+        
+
+        if (_lives.empty())
         {
-            meteor->update();
+            SetPlayerToDead();
         }
+
+        UpdateLives();
     }
 }
 
-void Game::Draw()
+void Game::UpdateGameObjects(sf::Time elapsed)
+{
+    std::erase_if(_meteors, [](Meteor& meteor) { return meteor.IsDestroyed(); });
+
+    for (auto& meteor : _meteors)
+    {
+        meteor.update(elapsed);
+    }
+
+    _player.update(elapsed);
+}
+
+void Game::Render()
 {
     _window.clear(sf::Color::Black);
     
@@ -192,10 +225,17 @@ void Game::Draw()
     {
         for (auto& meteor : _meteors)
         {
-            _window.draw(*meteor);
+            _window.draw(meteor);
         }
 
         _window.draw(_player);
+        
+        _window.draw(_lifeBar);
+
+        for (auto& life : _lives)
+        {
+            _window.draw(life);
+        }
     }
 }
 
@@ -203,26 +243,15 @@ int Game::GameLoop()
 {
     while (_window.isOpen())
     {
-       
+        sf::Time elapsed = _clock.restart();
 
-        /*
-        if (body->GetPosition().y < -(window.getSize().y / pixelMetersRatio))
-        {
-            std::cout << "LETSGO  LA PHYSIQUE" << std::endl;
-        }
+        CheckInput();
 
-        if (box.getPosition().y > window.getSize().y)
-        {
-            std::cout << "LETSGO  LES GRAPH" << std::endl;
-        }*/
+        UpdateGame(elapsed);
 
-        Update();
+        Render();
 
-        Draw();
-
-        // Window Display
         _window.display();
-
     }
 
     return EXIT_SUCCESS;

@@ -8,39 +8,37 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
+class Game;
+
 class Laser : public GameObject
 {
 private:
-	// ------------------------------------------------
-	// Sprite
-
-	//sf::Texture _texture;
-	//sf::Sprite _sprite;
-
-	//// ------------------------------------------------
-	//// Box 2d
-
-	//b2BodyDef _bodyDef;
-
-	//b2Body* _body = nullptr;
+	Game& _game;
 
 	// Shape of the physical (A box)
 	b2PolygonShape _hitBox;
 
-	// The fixture is what it defines the physic react
-	/*b2FixtureDef FixtureDef;*/
+	bool _isDestroyed = false;
 
 	sf::Sound _sound;
 	sf::SoundBuffer _buffer;
 
 public:
+	Laser(Game& game, b2Vec2 playerPos);
+	~Laser();
+
+	bool IsDestroyed() { return _isDestroyed; }
+	void SetToDestroyed() { _isDestroyed = true; }
+
 	void Init(b2World& world, b2Vec2 playerPos);
 
 	void Move(b2Vec2 force);
 
 	void PlaySound() { _sound.play(); }
 
-	void update() override;
+	sf::Vector2f GetPosition() { return _sprite.getPosition(); }
+
+	void update(sf::Time elapsed) override;
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

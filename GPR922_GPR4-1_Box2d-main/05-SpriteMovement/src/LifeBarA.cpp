@@ -1,6 +1,6 @@
-#include "lifebar.h"
+#include "LifeBarA.h"
 
-LifeBar::LifeBar(float lifeMax)
+LifeBarA::LifeBarA(float lifeMax)
 {
 
 	// Life bar of the ship
@@ -21,19 +21,19 @@ LifeBar::LifeBar(float lifeMax)
 
 }
 
-void LifeBar::update()
+void LifeBarA::update()
 {
 	// Life bar update
 	m_lifeBarFill.setScale(m_life / m_lifeMax, 1.0f);
 
 }
 
-void LifeBar::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void LifeBarA::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(m_lifeBarContour, states);
 	target.draw(m_lifeBarFill, states);
 }
 
-void LifeBar::setLife(float life_) {
+void LifeBarA::setLife(float life_) {
 	m_life = life_;
 }

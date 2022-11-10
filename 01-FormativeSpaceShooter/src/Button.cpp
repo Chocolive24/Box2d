@@ -19,7 +19,7 @@ void Button::InitShape(float x, float y)
 	_shape.setOrigin(_shape.getLocalBounds().width / 2.0f, _shape.getLocalBounds().height / 2.0f);
 	_shape.setPosition(x, y);
 	//_shape.setFillColor(sf::Color(50, 50, 50));
-	_shape.setFillColor(Properties::DARKGREEN);
+	_shape.setFillColor(Properties::DARK_GREEN);
 	_shape.setOutlineThickness(3.0f);
 	_shape.setOutlineColor(sf::Color::Black);
 }

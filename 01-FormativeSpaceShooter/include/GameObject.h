@@ -21,14 +21,15 @@ protected:
 	sf::Sprite _sprite;
 
 	// ---------------------------------------------------------------------------------------------------
-	// Body and fixture attributes.
+	// Body, User data and fixture attributes.
 	b2Body* _body = nullptr;
 
-	UserData* _userData;
-
+	UserData* _userData = nullptr;
 	bool _addedToGroupIndex = false;
 
 	b2FixtureDef _fixtureDef;
+
+	sf::Time _totalElapsed;
 
 	// ---------------------------------------------------------------------------------------------------
 	// Methods to create the sprite, the body and the fixture.
@@ -39,12 +40,12 @@ protected:
 	b2PolygonShape createPolygonHitBox();
 	b2CircleShape createCicrleHitBox();
 
-	void createFixture(b2Shape& hitBox, int userDataIndex);
+	void createFixture(b2Shape& hitBox, int16 userDataIndex, UserData* userData);
 
 	// ---------------------------------------------------------------------------------------------------
 	// Methods related to the game loop.
 
-	virtual void update();
+	virtual void update(sf::Time elapsed);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 

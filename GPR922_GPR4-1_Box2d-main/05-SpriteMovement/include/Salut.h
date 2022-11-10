@@ -2,7 +2,7 @@
 
 #include "SFML/Graphics.hpp"
 
-class LifeBar : public sf::Drawable
+class Salut : public sf::Drawable
 {
 public:
 	LifeBar(float lifeMax);

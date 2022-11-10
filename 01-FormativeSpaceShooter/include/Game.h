@@ -12,6 +12,10 @@
 #include "ContactListener.h"
 #include "Laser.h"
 #include "Meteor.h"
+#include <list>
+
+#include "Life.h"
+#include "LifeBar.h"
 
 class Game
 {
@@ -24,8 +28,10 @@ private:
 	ContactListener _contactListener;
 
 	Player _player;
+	LifeBar _lifeBar;
+	std::list<Life> _lives;
 
-	std::vector<Meteor*> _meteors;
+	std::list<Meteor> _meteors;
 
 	sf::Texture _backgroundTexture;
 	sf::Sprite _backgroundSprite;
@@ -35,10 +41,19 @@ private:
 	Button _exitButton;
 
 	bool _start = false;
+	bool _isPlayerDead = false;
+
+	sf::Clock _clock;
+	sf::Time _totalElapsed;
 
 public:
 
 	Game();
+
+	b2World& GetWorld() { return _world; }
+	Player& GetPlayer() { return _player; }
+
+	void SetPlayerToDead() { _isPlayerDead = true; }
 
 	void Init();
 
@@ -46,11 +61,16 @@ public:
 
 	void AddMeteors();
 
+	void UpdateLives();
+
 	void CheckInput();
 
-	void Update();
+	
 
-	void Draw();
+	void UpdateGame(sf::Time elapsed);
+	void UpdateGameObjects(sf::Time elapsed);
+
+	void Render();
 
 	int GameLoop();
 };
