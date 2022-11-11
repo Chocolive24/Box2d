@@ -37,7 +37,7 @@ public:
 
 	void Init(b2World& world, b2Vec2 playerPos);
 
-	void Move(b2Vec2 force);
+	void Move();
 
 	sf::Vector2f GetPosition() { return _sprite.getPosition(); }
 

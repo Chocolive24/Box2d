@@ -40,7 +40,7 @@ void Laser::Init(b2World& world, b2Vec2 playerPos)
     
 }
 
-void Laser::Move(b2Vec2 force)
+void Laser::Move()
 {
     _body->SetLinearVelocity(_velocity);
 }

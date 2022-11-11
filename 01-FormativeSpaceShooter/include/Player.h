@@ -29,6 +29,8 @@ private:
     std::list<Laser> _lasers;
     std::list<Bomb> _bombs;
     int _bombNbr = 3;
+    Explosion _bombExplosion;
+    bool _isAnExplosion = false;
 
     // -------------------------------------------------------------------------------------------
 	// Player's data attributes.

@@ -206,12 +206,12 @@ void Game::UpdateGameObjects(sf::Time elapsed)
     {
         meteor.update(elapsed);
 
-        if (meteor.IsDestroyed())
+        /*if (meteor.IsDestroyed())
         {
             _explosions.emplace_back(*this, meteor.GetBody()->GetPosition());
             _explosions.back().update(elapsed);
             _soundManager.PlayExplosionSound();
-        }
+        }*/
     }
 
     std::erase_if(_meteors, [](Meteor& meteor) { return meteor.IsDestroyed(); });
@@ -241,10 +241,10 @@ void Game::Render()
             _window.draw(meteor);
         }
 
-		for (auto& explosion : _explosions)
+		/*for (auto& explosion : _explosions)
 		{
             _window.draw(explosion);
-		}
+		}*/
 
         _window.draw(_player);
         
@@ -271,7 +271,7 @@ int Game::GameLoop()
 
         Render();
 
-        _window.display();
+          _window.display();
     }
 
     return EXIT_SUCCESS;

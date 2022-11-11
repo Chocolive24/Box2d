@@ -6,7 +6,7 @@
 #include "core/Properties.h"
 #include "core/Utility.h"
 
-Player::Player(Game& game) : _game(game)
+Player::Player(Game& game) : _game(game), _bombExplosion(_game)
 {
     // ---------------------------------------------------------------------------------------------------------
     // Shape Init.
@@ -91,7 +91,7 @@ void Player::Shoot(b2World& world)
 
     _lasers.emplace_back(_game, startPos);
 
-    _lasers.back().Move(_lasers.back().GetVelocity());
+    _lasers.back().Move();
     _lasers.back().SetAngle(_body->GetAngle());
 
     _canShoot = false;
@@ -105,7 +105,7 @@ void Player::ThrowBomb(b2World& world)
         
         _bombs.emplace_back(_game, startPos);
 
-        _bombs.back().Move(b2Vec2(0, 50));
+        _bombs.back().Move();
 
         _bombNbr -= 1;
     }
@@ -140,12 +140,23 @@ void Player::update(sf::Time elapsed)
         laser.update(elapsed);
     }
 
-    std::erase_if(_bombs, [](Bomb& bomb) { return bomb.IsDestroyed(); });
-
     for (auto& bomb : _bombs)
     {
         bomb.update(elapsed);
+
+        if (bomb.IsDestroyed())
+        {
+            _bombExplosion.Init(_game, bomb.GetBody()->GetPosition());
+            _bombExplosion.CreateAnExplosion();
+        }
     }
+
+    if (_bombExplosion.IsAnExplosion())
+    {
+        _bombExplosion.update(elapsed);
+    }
+
+    std::erase_if(_bombs, [](Bomb& bomb) { return bomb.IsDestroyed(); });
 
     // -------------------------------------------------------------------------------------------------------------
     // Tests.
@@ -173,5 +184,8 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         target.draw(bomb);
     }
+
+    target.draw(_bombExplosion);
     
+
 }

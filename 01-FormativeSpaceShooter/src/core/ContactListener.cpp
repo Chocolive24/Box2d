@@ -57,7 +57,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* bomb = reinterpret_cast<UserData*>(bPointer);
 
-			player->GetPlayer()->TakeDamage(100);
+			//player->GetPlayer()->TakeDamage(100);
 			bomb->GetBomb()->SetToDestroyed();
 		}
 	}
@@ -79,7 +79,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* bomb = reinterpret_cast<UserData*>(aPointer);
 
-			player->GetPlayer()->TakeDamage(100);
+			//player->GetPlayer()->TakeDamage(100);
 			bomb->GetBomb()->SetToDestroyed();
 		}
 	}
@@ -161,15 +161,31 @@ void ContactListener::BeginContact(b2Contact* contact)
 	}
 
 	// ---------------------------------------------------------------------------------------------------------
+	// Collisions between explosions and other game objects.
+
+	// ---------------------------------------------------------------------------------------------------------
 	// Collisions between the meteors and the other game objects.
 
-	if (userDataA == UserDataType::METEOR && userDataB == UserDataType::METEOR)
+	if (userDataA == UserDataType::METEOR)
 	{
 		auto* meteorA = reinterpret_cast<UserData*>(aPointer);
-		auto* meteorB = reinterpret_cast<UserData*>(bPointer);
 
-		meteorA->GetMeteor()->SetToDestroyed();
-		meteorB->GetMeteor()->SetToDestroyed();
+		if (userDataB == UserDataType::METEOR)
+		{
+			auto* meteorB = reinterpret_cast<UserData*>(bPointer);
+
+			meteorA->GetMeteor()->SetToDestroyed();
+			meteorB->GetMeteor()->SetToDestroyed();
+		}
+
+		else if (userDataB == UserDataType::EXPLOSION)
+		{
+			auto* explosion = reinterpret_cast<UserData*>(bPointer);
+
+			meteorA->GetMeteor()->SetToDestroyed();
+			explosion->GetExplosion()->SetToDestroyed();
+		}
+
 	}
 
 	// The other meteors collisions are already handled
@@ -178,4 +194,39 @@ void ContactListener::BeginContact(b2Contact* contact)
 void ContactListener::EndContact(b2Contact* contact)
 {
 	std::cout << "end contact" << std::endl;
+
+	// ---------------------------------------------------------------------------------------------------------
+	// Get the bodies of the collision.
+	b2Body* bodyA = contact->GetFixtureA()->GetBody();
+	b2Body* bodyB = contact->GetFixtureB()->GetBody();
+
+	// ---------------------------------------------------------------------------------------------------------
+	// Get the group index of the bodies.
+
+	auto userDataA = static_cast<UserDataType>(bodyA->GetFixtureList()->GetFilterData().groupIndex);
+	auto userDataB = static_cast<UserDataType>(bodyB->GetFixtureList()->GetFilterData().groupIndex);
+
+	// ---------------------------------------------------------------------------------------------------------
+	// Get the pointers of the fixture.
+
+	auto aPointer = contact->GetFixtureA()->GetUserData().pointer;
+	auto bPointer = contact->GetFixtureB()->GetUserData().pointer;
+
+	// ---------------------------------------------------------------------------------------------------------
+	// Collision between the player and the other game objects.
+
+	// Case user data A = player.
+	if (userDataA == UserDataType::PLAYER)
+	{
+		auto* player = reinterpret_cast<UserData*>(aPointer);
+
+		if (userDataB == UserDataType::EXPLOSION)
+		{
+			auto* explosion = reinterpret_cast<UserData*>(bPointer);
+
+			player->GetPlayer()->TakeDamage(1);
+			explosion->GetExplosion()->SetToDestroyed();
+		}
+
+	}
 }

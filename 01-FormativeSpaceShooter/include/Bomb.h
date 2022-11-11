@@ -8,12 +8,18 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
+#include "Explosion.h"
+
 class Game;
 
 class Bomb : public GameObject
 {
 private:
 	Game& _game;
+
+	b2Vec2 _velocity;
+
+	
 
 	bool _isDestroyed = false;
 
@@ -24,12 +30,14 @@ public:
 	Bomb(Game& game, b2Vec2 playerPos);
 	~Bomb();
 
+
+	b2Body* GetBody() { return _body; }
 	bool IsDestroyed() { return _isDestroyed; }
 	void SetToDestroyed() { _isDestroyed = true; }
 
 	void Init(b2World& world, b2Vec2 playerPos);
 
-	void Move(b2Vec2 force);
+	void Move();
 
 	void PlaySound() { _sound.play(); }
 
