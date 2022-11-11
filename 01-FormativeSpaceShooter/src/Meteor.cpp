@@ -4,8 +4,8 @@
 #include <box2d/b2_circle_shape.h>
 
 #include "Game.h"
-#include "Properties.h"
-#include "Utility.h"
+#include "core/Properties.h"
+#include "core/Utility.h"
 
 Meteor::Meteor(Game& game) : _game(game)
 {
@@ -62,7 +62,7 @@ b2Vec2 Meteor::InitRndPosAndVelocity()
 
 void Meteor::Move()
 {
-    _body->SetLinearVelocity(_body->GetLinearVelocity() + _velocity);
+    _body->SetLinearVelocity(_velocity);
 }
 
 void Meteor::update(sf::Time elapsed)

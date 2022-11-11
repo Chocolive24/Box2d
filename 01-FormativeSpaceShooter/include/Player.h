@@ -7,7 +7,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Bomb.h"
-#include "GameObject.h"
+#include "core/GameObject.h"
 #include "Laser.h"
 
 class Game;

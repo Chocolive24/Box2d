@@ -4,19 +4,14 @@
 #include <Box2D/b2_circle_shape.h>
 
 #include "Game.h"
-#include "Properties.h"
-#include "Utility.h"
+#include "core/Properties.h"
+#include "core/Utility.h"
 
 Bomb::Bomb(Game& game, b2Vec2 playerPos) : _game(game)
 {
     createSprite("data/sprites/PNG/Lasers/laserRed08.png");
 
-    if (!_buffer.loadFromFile("data/sound/bomb.wav"))
-    {
-        return;
-    }
-
-    _sound.setBuffer(_buffer);
+    
 
     createBody(_game.GetWorld(), playerPos);
     b2CircleShape hitBox = createCicrleHitBox();

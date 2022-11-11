@@ -2,15 +2,17 @@
 
 #include <iostream>
 
-#include "Properties.h"
-#include "Utility.h"
+
+#include "core/Utility.h"
+#include "core/Properties.h"
 
 Game::Game() :
-	_gravity(0.0f, 0.0f),
-	_world(_gravity),
-	_player(*this),
-	_lifeBar(_player)
-	
+    _gravity(0.0f, 0.0f),
+    _world(_gravity),
+    _contactListener(*this),
+    _player(*this),
+    _lifeBar(_player)
+
 {
     for (int width = 0; width < _player.GetLives(); width++)
     {
@@ -19,6 +21,8 @@ Game::Game() :
         _lives.back().SetPosition(_lifeBar.GetPosition().x + _lives.back().GetLocalBounds().width * width * 1.2f,
             _lifeBar.GetPosition().y + 2 * _lifeBar.GetLocalBounds().height);
     }
+
+    _world.SetContactListener(&_contactListener);
 }
 
 void Game::Init()
@@ -30,7 +34,7 @@ void Game::Init()
     _window.setVerticalSyncEnabled(true);
     _window.setFramerateLimit(120);
 
-    _world.SetContactListener(&_contactListener);
+    
 
     CreateBackground();
 
@@ -147,6 +151,7 @@ void Game::CheckInput()
                     if (_player.CanShoot())
                     {
                         _player.Shoot(_world);
+                        _soundManager.PlayLaserSound();
                     }
                 }
             }
@@ -154,6 +159,7 @@ void Game::CheckInput()
 			if (event.key.code == sf::Keyboard::Key::Q)
 			{
                 _player.ThrowBomb(_world);
+                _soundManager.PlayBombSound();
 			}
         }
     }
@@ -179,11 +185,11 @@ void Game::UpdateGame(sf::Time elapsed)
         int32 positionIterations = 2;
         _world.Step(timeStep, velocityIterations, positionIterations);
 
+        _score.Update();
+
         UpdateGameObjects(elapsed);
 
         _lifeBar.Update();
-
-        
 
         if (_lives.empty())
         {
@@ -196,12 +202,19 @@ void Game::UpdateGame(sf::Time elapsed)
 
 void Game::UpdateGameObjects(sf::Time elapsed)
 {
-    std::erase_if(_meteors, [](Meteor& meteor) { return meteor.IsDestroyed(); });
-
     for (auto& meteor : _meteors)
     {
         meteor.update(elapsed);
+
+        if (meteor.IsDestroyed())
+        {
+            _explosions.emplace_back(*this, meteor.GetBody()->GetPosition());
+            _explosions.back().update(elapsed);
+            _soundManager.PlayExplosionSound();
+        }
     }
+
+    std::erase_if(_meteors, [](Meteor& meteor) { return meteor.IsDestroyed(); });
 
     _player.update(elapsed);
 }
@@ -228,6 +241,11 @@ void Game::Render()
             _window.draw(meteor);
         }
 
+		for (auto& explosion : _explosions)
+		{
+            _window.draw(explosion);
+		}
+
         _window.draw(_player);
         
         _window.draw(_lifeBar);
@@ -236,6 +254,8 @@ void Game::Render()
         {
             _window.draw(life);
         }
+
+        _window.draw(_score);
     }
 }
 

@@ -4,7 +4,7 @@
 #include <box2d/b2_world.h>
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_polygon_shape.h>
-#include <GameObject.h>
+#include <core/GameObject.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
@@ -26,6 +26,8 @@ private:
 public:
 	Meteor(Game& game);
 	~Meteor();
+
+	b2Body* GetBody() { return _body; }
 
 	bool IsDestroyed() { return _isDestroyed; }
 	void SetToDestroyed() { _isDestroyed = true; }

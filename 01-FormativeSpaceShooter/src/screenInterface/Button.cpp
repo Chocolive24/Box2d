@@ -1,8 +1,8 @@
-#include  "Button.h"
+#include "screenInterface/Button.h"
 
 #include <iostream>
 
-#include "Properties.h"
+#include "core/Properties.h"
 
 void Button::Init(float x, float y, std::string string, std::string path)
 {

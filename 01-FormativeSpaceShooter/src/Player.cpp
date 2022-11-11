@@ -3,8 +3,8 @@
 #include <iostream>
 
 #include "Game.h"
-#include "Properties.h"
-#include "Utility.h"
+#include "core/Properties.h"
+#include "core/Utility.h"
 
 Player::Player(Game& game) : _game(game)
 {
@@ -73,8 +73,9 @@ void Player::Move(b2Vec2 force)
 
 void Player::Rotate(float omega)
 {
-    _body->ApplyTorque(omega, true);
-    _body->SetTransform(_body->GetPosition(), omega);
+    _body->SetAngularVelocity(omega);
+    _body->ApplyTorque(_body->GetAngle(), true);
+    _body->SetTransform(_body->GetPosition(), _body->GetAngle());
     
     _sprite.rotate(_body->GetAngle());
 }
@@ -86,12 +87,12 @@ void Player::AddLaser(b2World& world)
 
 void Player::Shoot(b2World& world)
 {
-    b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 1.0f);
+    b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
 
     _lasers.emplace_back(_game, startPos);
 
-    _lasers.back().Move(b2Vec2(0, 50));
-    _lasers.back().PlaySound();
+    _lasers.back().Move(_lasers.back().GetVelocity());
+    _lasers.back().SetAngle(_body->GetAngle());
 
     _canShoot = false;
 }
@@ -100,11 +101,9 @@ void Player::ThrowBomb(b2World& world)
 {
     if (_bombNbr > 0)
     {
-        b2Vec2 startPos(_body->GetPosition().x, (_body->GetPosition().y + 1.0f));
+        b2Vec2 startPos(_body->GetPosition().x, (_body->GetPosition().y + 0.8f));
         
         _bombs.emplace_back(_game, startPos);
-
-        _bombs.back().PlaySound();
 
         _bombs.back().Move(b2Vec2(0, 50));
 
@@ -137,6 +136,7 @@ void Player::update(sf::Time elapsed)
 
     for (auto& laser : _lasers)
     {
+        laser.CheckIfOutOfScreen();
         laser.update(elapsed);
     }
 

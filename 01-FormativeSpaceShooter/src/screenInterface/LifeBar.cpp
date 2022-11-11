@@ -1,7 +1,8 @@
-#include "LifeBar.h"
+
+#include "screenInterface/LifeBar.h"
 
 #include "Player.h"
-#include "Properties.h"
+#include "core/Properties.h"
 
 LifeBar::LifeBar(Player& player) : _player(player)
 {

@@ -1,4 +1,4 @@
-#include "Properties.h"
+#include "core/Properties.h"
 
 void Properties::UpdateTime()
 {

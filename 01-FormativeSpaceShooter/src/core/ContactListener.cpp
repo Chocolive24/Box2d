@@ -1,10 +1,21 @@
-#include "ContactListener.h"
+#include "core/ContactListener.h"
 
 #include <iostream>
 #include <box2d/b2_contact.h>
 
+#include "Game.h"
 #include "Meteor.h"
 #include "Player.h"
+#include "core/Properties.h"
+
+enum class UserDataType;
+class UserData;
+class Game;
+
+ContactListener::ContactListener(Game& game) : _game(game)
+{
+
+}
 
 void ContactListener::BeginContact(b2Contact* contact)
 {
@@ -86,6 +97,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			laser->GetLaser()->SetToDestroyed();
 			meteor->GetMeteor()->SetToDestroyed();
+			_game.GetScore().IncreaseScore(Properties::METEOR_POINTS);
 		}
 
 		else if (userDataB == UserDataType::BOMB)
@@ -107,6 +119,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			laser->GetLaser()->SetToDestroyed();
 			meteor->GetMeteor()->SetToDestroyed();
+			_game.GetScore().IncreaseScore(Properties::METEOR_POINTS);
 		}
 
 		else if (userDataA == UserDataType::BOMB)

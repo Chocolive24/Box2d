@@ -12,6 +12,8 @@ public:
 	inline static sf::Color GREEN = sf::Color(0, 150, 0);
 	inline static sf::Color DARK_GREEN = sf::Color(0, 50, 0);
 
+	static constexpr int METEOR_POINTS = 10;
+
 	static constexpr float LASER_COOLDOWN = 0.5f;
 	static constexpr float METEOR_COOLDOWN = 1.0f;
 

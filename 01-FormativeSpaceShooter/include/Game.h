@@ -8,14 +8,17 @@
 #include <SFML/Graphics.hpp>
 
 
-#include "Button.h"
-#include "ContactListener.h"
+#include "screenInterface/Button.h"
+#include "core/ContactListener.h"
 #include "Laser.h"
 #include "Meteor.h"
 #include <list>
 
-#include "Life.h"
-#include "LifeBar.h"
+#include "Explosion.h"
+#include "screenInterface/Life.h"
+#include "screenInterface/LifeBar.h"
+#include "screenInterface/Score.h"
+#include "soundDesign/SoundManager.h"
 
 class Game
 {
@@ -30,8 +33,10 @@ private:
 	Player _player;
 	LifeBar _lifeBar;
 	std::list<Life> _lives;
+	Score _score;
 
 	std::list<Meteor> _meteors;
+	std::list<Explosion> _explosions;
 
 	sf::Texture _backgroundTexture;
 	sf::Sprite _backgroundSprite;
@@ -46,12 +51,15 @@ private:
 	sf::Clock _clock;
 	sf::Time _totalElapsed;
 
+	SoundManager _soundManager;
+
 public:
 
 	Game();
 
 	b2World& GetWorld() { return _world; }
 	Player& GetPlayer() { return _player; }
+	Score& GetScore() { return _score; }
 
 	void SetPlayerToDead() { _isPlayerDead = true; }
 

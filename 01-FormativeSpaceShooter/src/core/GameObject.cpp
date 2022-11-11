@@ -1,9 +1,9 @@
-#include "GameObject.h"
+#include "core/GameObject.h"
 
 #include <Box2D/b2_circle_shape.h>
 
-#include "Properties.h"
-#include "Utility.h"
+#include "core/Properties.h"
+#include "core/Utility.h"
 
 void GameObject::createSprite(std::string path)
 {

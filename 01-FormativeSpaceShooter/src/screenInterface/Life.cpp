@@ -1,4 +1,4 @@
-#include "Life.h"
+#include "screenInterface/Life.h"
 
 #include "Player.h"
 

@@ -37,6 +37,8 @@ protected:
 
 	void createBody(b2World& world, b2Vec2 startPosition);
 
+	
+
 	b2PolygonShape createPolygonHitBox();
 	b2CircleShape createCicrleHitBox();
 
