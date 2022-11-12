@@ -161,9 +161,6 @@ void ContactListener::BeginContact(b2Contact* contact)
 	}
 
 	// ---------------------------------------------------------------------------------------------------------
-	// Collisions between explosions and other game objects.
-
-	// ---------------------------------------------------------------------------------------------------------
 	// Collisions between the meteors and the other game objects.
 
 	if (userDataA == UserDataType::METEOR)

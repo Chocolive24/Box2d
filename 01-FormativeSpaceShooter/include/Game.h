@@ -18,6 +18,7 @@
 #include "screenInterface/Life.h"
 #include "screenInterface/LifeBar.h"
 #include "screenInterface/Score.h"
+#include "screenInterface/Shop.h"
 #include "soundDesign/SoundManager.h"
 
 class Game
@@ -44,6 +45,9 @@ private:
 
 	Button _startButton;
 	Button _exitButton;
+
+	Shop _shop;
+	bool _shopOpen = false;
 
 	bool _start = false;
 	bool _isPlayerDead = false;

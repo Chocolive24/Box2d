@@ -11,7 +11,8 @@ Game::Game() :
     _world(_gravity),
     _contactListener(*this),
     _player(*this),
-    _lifeBar(_player)
+    _lifeBar(_player),
+	_shop(_score)
 
 {
     for (int width = 0; width < _player.GetLives(); width++)
@@ -86,7 +87,7 @@ void Game::UpdateLives()
 
 void Game::CheckInput()
 {
-    if (_start)
+    if (_start && !_shopOpen)
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
         {
@@ -131,13 +132,13 @@ void Game::CheckInput()
 
     while (_window.pollEvent(event))
     {
-        if (event.type == sf::Event::Closed || 
-           (event.key.code == sf::Keyboard::Escape && !_start))
+        if (event.type == sf::Event::Closed ||
+            (event.key.code == sf::Keyboard::Escape && !_start))
         {
             _window.close();
         }
 
-        else if  (event.type == sf::Event::KeyReleased)
+        else if (event.type == sf::Event::KeyReleased && !_shopOpen)
         {
             if (event.key.code == sf::Keyboard::Key::Space)
             {
@@ -156,18 +157,29 @@ void Game::CheckInput()
                 }
             }
 
-			if (event.key.code == sf::Keyboard::Key::Q)
-			{
+            if (event.key.code == sf::Keyboard::Key::Q && !_shopOpen)
+            {
                 _player.ThrowBomb(_world);
                 _soundManager.PlayBombSound();
-			}
+            }
         }
+
+        else if (event.key.code == sf::Keyboard::Key::Num1 && !_shopOpen)
+        {
+            _shopOpen = true;
+        }
+
+        else if (event.key.code == sf::Keyboard::Key::Escape && _shopOpen)
+        {
+            _shopOpen = false;
+        }
+        
     }
 }
 
 void Game::UpdateGame(sf::Time elapsed)
 {
-    if (_start)
+    if (_start && !_shopOpen)
     {
         _totalElapsed += elapsed;
 
@@ -234,7 +246,7 @@ void Game::Render()
         _window.draw(_exitButton);
     }
 
-    else
+    if (_start && !_shopOpen)
     {
         for (auto& meteor : _meteors)
         {
@@ -256,6 +268,15 @@ void Game::Render()
         }
 
         _window.draw(_score);
+    }
+
+    if (_shopOpen)
+    {
+        for (auto& backgroundSprite : _background)
+        {
+            _window.draw(backgroundSprite);
+        }
+        _window.draw(_shop);
     }
 }
 
