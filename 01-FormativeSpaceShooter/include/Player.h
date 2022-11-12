@@ -9,6 +9,7 @@
 #include "Bomb.h"
 #include "core/GameObject.h"
 #include "Laser.h"
+#include "Upgrade.h"
 
 class Game;
 
@@ -77,7 +78,7 @@ public:
     void Rotate(float omega);
 
     void AddLaser(b2World& world);
-    void Shoot(b2World& world);
+    void Shoot(Upgrade& laserUpgrade);
     void ThrowBomb(b2World& world);
 
     void update(sf::Time elapsed) override;

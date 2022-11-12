@@ -151,7 +151,7 @@ void Game::CheckInput()
                 {
                     if (_player.CanShoot())
                     {
-                        _player.Shoot(_world);
+                        _player.Shoot(_shop.GetLaserUpgrade());
                         _soundManager.PlayLaserSound();
                     }
                 }
@@ -162,6 +162,11 @@ void Game::CheckInput()
                 _player.ThrowBomb(_world);
                 _soundManager.PlayBombSound();
             }
+        }
+
+        else if (event.key.code == sf::Keyboard::Key::Q && _shopOpen)
+        {
+            _shop.BuyAnUpgrade(UpgradeType::LASER);
         }
 
         else if (event.key.code == sf::Keyboard::Key::Num1 && !_shopOpen)
@@ -210,6 +215,8 @@ void Game::UpdateGame(sf::Time elapsed)
 
         UpdateLives();
     }
+
+    _shop.Update();
 }
 
 void Game::UpdateGameObjects(sf::Time elapsed)

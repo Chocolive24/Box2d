@@ -85,14 +85,22 @@ void Player::AddLaser(b2World& world)
     
 }
 
-void Player::Shoot(b2World& world)
+void Player::Shoot(Upgrade& laserUpgrade)
 {
     b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
 
-    _lasers.emplace_back(_game, startPos);
+    for (int i = 1; i <= laserUpgrade.GetLevel(); i++)
+    {
+        if (i % 2 == 0)
+        {
+            startPos.x -= Utility::PixelToMeters(_sprite.getGlobalBounds().width / laserUpgrade.GetLevel() * 2);
+        }
 
-    _lasers.back().Move();
-    _lasers.back().SetAngle(_body->GetAngle());
+        _lasers.emplace_back(_game, startPos);
+
+        _lasers.back().Move();
+        _lasers.back().SetAngle(_body->GetAngle());
+    }
 
     _canShoot = false;
 }

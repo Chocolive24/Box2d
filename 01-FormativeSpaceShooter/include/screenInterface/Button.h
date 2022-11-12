@@ -15,6 +15,8 @@ private:
 	std::map<std::string, sf::Sprite> _keySprites;
 
 public:
+	void SetText(std::string newText) { _text.setString(newText); }
+
 	void Init(float x, float y, std::string string, std::string path);
 	void InitShape(float x, float y);
 	void InitText(std::string string);

@@ -27,7 +27,11 @@ public:
 
 	int GetCost() { return _cost; }
 	void SetCost(int newCost) { _cost = newCost; }
+	int GetLevel() { return _level; }
+	int GetMaxLevel() { return _maxlevel; }
 	void UpLevel() { _level++; }
+
+	void UpdateCostText(std::string newText);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

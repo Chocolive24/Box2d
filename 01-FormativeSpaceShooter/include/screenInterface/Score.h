@@ -16,7 +16,9 @@ public:
 
 	sf::Text Init(std::string string, float x, float y);
 
+	int GetScorePoints() { return _scorePoints; }
 	void IncreaseScore(int scorePoints) { _scorePoints += scorePoints; }
+	void DecreaseScore(int scorePoints) { _scorePoints -= scorePoints; }
 
 	void Update();
 

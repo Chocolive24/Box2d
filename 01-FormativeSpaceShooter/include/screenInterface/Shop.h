@@ -15,8 +15,12 @@ private:
 
 	Button _laserUpButton;
 
+	bool _mustBeUpdated = false;
+
 public:
 	Shop(Score& score);
+
+	Upgrade& GetLaserUpgrade() { return _laserUpgrade; }
 
 	void BuyAnUpgrade(UpgradeType upgradeType);
 

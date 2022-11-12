@@ -11,14 +11,35 @@ Shop::Shop(Score& score) :
 
 void Shop::BuyAnUpgrade(UpgradeType upgradeType)
 {
+	// TODO mettre un objet Upgrade upgarde en argument et faire : upgarde.getCost, upgrade.GetLevel etc....
+	// TODO dans game appeler buyanupgrade avec un getter de l'upgrade en question.
 	if (upgradeType == UpgradeType::LASER)
 	{
-		_laserUpgrade.SetCost(_laserUpgrade.GetCost() * 3);
-		_laserUpgrade.UpLevel();
+		if (_score.GetScorePoints() >= _laserUpgrade.GetCost() &&
+			_laserUpgrade.GetLevel() <= _laserUpgrade.GetMaxLevel())
+		{
+			_score.DecreaseScore(_laserUpgrade.GetCost());
+			_laserUpgrade.SetCost(_laserUpgrade.GetCost() + 3);
+			_laserUpgrade.UpLevel();
+			_mustBeUpdated = true;
+		}
 	}
+}
+
+void Shop::Update()
+{
+	if (_mustBeUpdated)
+	{
+		_score.Update();
+		_laserUpgrade.SetCost(_laserUpgrade.GetCost());
+		_laserUpgrade.UpdateCostText(std::to_string(_laserUpgrade.GetCost()));
+		_mustBeUpdated = false;
+	}
+	
 }
 
 void Shop::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(_laserUpgrade, states);
+	target.draw(_score);
 }
