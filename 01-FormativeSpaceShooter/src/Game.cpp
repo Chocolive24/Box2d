@@ -15,14 +15,6 @@ Game::Game() :
 	_shop(_score)
 
 {
-    for (int width = 0; width < _player.GetLives(); width++)
-    {
-        _lives.emplace_back(_player);
-
-        _lives.back().SetPosition(_lifeBar.GetPosition().x + _lives.back().GetLocalBounds().width * width * 1.2f,
-            _lifeBar.GetPosition().y + 2 * _lifeBar.GetLocalBounds().height);
-    }
-
     _world.SetContactListener(&_contactListener);
 }
 
@@ -35,14 +27,27 @@ void Game::Init()
     _window.setVerticalSyncEnabled(true);
     _window.setFramerateLimit(120);
 
-    
-
     CreateBackground();
 
-    _startButton.Init(windowSize.x / 2.0f, windowSize.y / 4.0f, 
+    _startButton.Init(windowSize.x / 2.0f, windowSize.y / 4.0f, sf::Vector2f(300, 100),
 					  "START", "data/sprites/PNG/Keys/Space-Key.png");
-    _exitButton.Init(windowSize.x / 2.0f, windowSize.y / 1.5f,
+    _exitButton.Init(windowSize.x / 2.0f, windowSize.y * 0.75, sf::Vector2f(300, 100),
         "EXIT", "data/sprites/PNG/Keys/Esc-Key.png");
+
+    _gameOverButton.InitShape(windowSize.x / 2.0f, windowSize.y / 4.0f, sf::Vector2f(500, 100));
+    _gameOverButton.InitText("GAME OVER");
+
+    _restartButton.Init(windowSize.x / 2.0f, windowSize.y / 2.0f, sf::Vector2f(400, 100),
+        "RESTART", "data/sprites/PNG/Keys/Space-Key.png");
+
+    for (int width = 0; width < _player.GetMaxLives(); width++)
+    {
+        _lives.emplace_back(_player);
+
+        _lives.back().SetPosition(_lifeBar.GetPosition().x + _lives.back().GetLocalBounds().width * width * 1.2f,
+            _lifeBar.GetPosition().y + 2 * _lifeBar.GetLocalBounds().height);
+    }
+
 }
 
 void Game::CreateBackground()
@@ -78,11 +83,20 @@ void Game::UpdateLives()
 {
     if (_player.GetCurrentLife() <= 0 && !_isPlayerDead)
     {
-        _lives.back().SetToLost();
-        _player.SetCurrentLifeToMax();
+        if(_isDieAnimationFinished)
+        {
+            _lives.back().SetToLost();
+            _player.SetCurrentLifeToMax();
+        }
     }
 
     std::erase_if(_lives, [](Life& life) { return life.IsLost(); });
+
+    if (_lives.empty())
+    {
+        _isPlayerDead = true;
+    }
+
 }
 
 void Game::CheckInput()
@@ -138,13 +152,19 @@ void Game::CheckInput()
             _window.close();
         }
 
-        else if (event.type == sf::Event::KeyReleased && !_shopOpen)
+        else if (event.type == sf::Event::KeyReleased)
         {
             if (event.key.code == sf::Keyboard::Key::Space)
             {
                 if (!_start)
                 {
                     _start = true;
+                }
+
+                else if (_isPlayerDead)
+                {
+                    Restart();
+                    _isPlayerDead = false;
                 }
 
                 else
@@ -162,31 +182,35 @@ void Game::CheckInput()
                 _player.ThrowBomb(_world);
                 _soundManager.PlayBombSound();
             }
-        }
 
-        else if (event.key.code == sf::Keyboard::Key::Q && _shopOpen)
-        {
-            _shop.BuyAnUpgrade(UpgradeType::LASER);
-        }
+            if (!_shopOpen)
+            {
+                if (event.key.code == sf::Keyboard::Key::Num1)
+                    _shopOpen = true;
+            }
 
-        else if (event.key.code == sf::Keyboard::Key::Num1 && !_shopOpen)
-        {
-            _shopOpen = true;
+            else 
+            {
+                if (event.key.code == sf::Keyboard::Key::Q && _shopOpen)
+                {
+                    _shop.BuyAnUpgrade(_shop.GetLaserUpgrade());
+                }
+                else if (event.key.code == sf::Keyboard::Key::Escape && _shopOpen)
+                {
+                    _shopOpen = false;
+                }
+            }
         }
-
-        else if (event.key.code == sf::Keyboard::Key::Escape && _shopOpen)
-        {
-            _shopOpen = false;
-        }
-        
     }
 }
 
 void Game::UpdateGame(sf::Time elapsed)
 {
-    if (_start && !_shopOpen)
+    if (_start && !_shopOpen && !_isPlayerDead)
     {
         _totalElapsed += elapsed;
+        
+        
 
         if (_totalElapsed.asSeconds() >= Properties::METEOR_COOLDOWN)
         {
@@ -212,11 +236,38 @@ void Game::UpdateGame(sf::Time elapsed)
         {
             SetPlayerToDead();
         }
-
-        UpdateLives();
     }
 
-    _shop.Update();
+    if (_player.GetCurrentLife() <= 0)
+    {
+        _isDieAnimationFinished = false;
+
+        _dieAnimationTime += elapsed;
+
+        if (_dieAnimationTime.asSeconds() >= 2)
+        {
+            _isDieAnimationFinished = true;
+            _dieAnimationTime = sf::Time::Zero;
+        }
+    }
+
+    UpdateLives();
+
+    std::cout << _dieAnimationTime.asSeconds() << std::endl;
+
+    if (_shopOpen)
+    {
+        _score.SetPosition(Properties::WINDOW_WIDTH / 2.0f, 300);
+        _shop.Update();
+        _exitButton.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.90f);
+    }
+
+    else
+    {
+        _score.SetPosition(Properties::WINDOW_WIDTH * 0.885f, Properties::WINDOW_HEIGHT * 0.02f);
+        _exitButton.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.75);
+    }
+    
 }
 
 void Game::UpdateGameObjects(sf::Time elapsed)
@@ -253,7 +304,7 @@ void Game::Render()
         _window.draw(_exitButton);
     }
 
-    if (_start && !_shopOpen)
+    if (_start && !_shopOpen && !_isPlayerDead)
     {
         for (auto& meteor : _meteors)
         {
@@ -279,12 +330,27 @@ void Game::Render()
 
     if (_shopOpen)
     {
-        for (auto& backgroundSprite : _background)
+        /*for (auto& backgroundSprite : _background)
         {
             _window.draw(backgroundSprite);
-        }
+        }*/
         _window.draw(_shop);
+        _window.draw(_exitButton);
     }
+
+    if (_isPlayerDead)
+    {
+        _window.draw(_gameOverButton);
+        _window.draw(_restartButton);
+        _window.draw(_exitButton);
+    }
+
+    _window.display();
+}
+
+void Game::Restart()
+{
+    Init();
 }
 
 int Game::GameLoop()
@@ -298,8 +364,6 @@ int Game::GameLoop()
         UpdateGame(elapsed);
 
         Render();
-
-          _window.display();
     }
 
     return EXIT_SUCCESS;

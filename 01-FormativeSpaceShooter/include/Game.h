@@ -45,15 +45,19 @@ private:
 
 	Button _startButton;
 	Button _exitButton;
+	Button _gameOverButton;
+	Button _restartButton;
 
 	Shop _shop;
 	bool _shopOpen = false;
 
 	bool _start = false;
 	bool _isPlayerDead = false;
+	bool _isDieAnimationFinished = true;
 
 	sf::Clock _clock;
 	sf::Time _totalElapsed;
+	sf::Time _dieAnimationTime;
 
 	SoundManager _soundManager;
 
@@ -77,12 +81,12 @@ public:
 
 	void CheckInput();
 
-	
-
 	void UpdateGame(sf::Time elapsed);
 	void UpdateGameObjects(sf::Time elapsed);
 
 	void Render();
+
+	void Restart();
 
 	int GameLoop();
 };

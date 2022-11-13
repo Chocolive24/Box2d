@@ -10,10 +10,8 @@ Score::Score()
 		return;
 	}
 
-	_scoreText = Init("Score : ", Properties::WINDOW_WIDTH * 0.885f, Properties::WINDOW_HEIGHT * 0.02f);
-
-	_scorePointsText = Init(std::to_string(_scorePoints),
-							Properties::WINDOW_WIDTH * 0.95f, Properties::WINDOW_HEIGHT * 0.02f);
+	_scoreText = Init("Score : " + std::to_string(_scorePoints), 
+		Properties::WINDOW_WIDTH * 0.885f, Properties::WINDOW_HEIGHT * 0.02f);
 }
 
 sf::Text Score::Init(std::string string, float x, float y)
@@ -35,11 +33,11 @@ sf::Text Score::Init(std::string string, float x, float y)
 
 void Score::Update()
 {
-	_scorePointsText.setString(std::to_string(_scorePoints));
+	_scoreText.setString("Score : " + std::to_string(_scorePoints));
+	_scoreText.setOrigin(_scoreText.getLocalBounds().width / 2.0f, _scoreText.getLocalBounds().height / 2.0f);
 }
 
 void Score::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(_scoreText, states);
-	target.draw(_scorePointsText, states);
 }

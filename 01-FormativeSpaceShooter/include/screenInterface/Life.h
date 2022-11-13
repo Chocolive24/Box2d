@@ -19,7 +19,7 @@ public:
 	Life(Player& player);
 
 	bool IsLost() { return _isLost; }
-	void SetToLost() { if (_player.GetCurrentLife() <= 0) _isLost = true; }
+	void SetToLost() { _isLost = true; }
 	sf::FloatRect GetLocalBounds() { return _sprite.getLocalBounds(); }
 
 	void SetPosition(float x, float y) { _sprite.setPosition(x, y); }

@@ -7,6 +7,7 @@ enum class UpgradeType
 {
 	LASER,
 	BOMB,
+	HP,
 
 };
 
@@ -20,10 +21,11 @@ private:
 	int _level = 1;
 	int _maxlevel = 5;
 
-	Button _button;
+	Button _priceButton;
+	Button _titleButton;
 
 public:
-	Upgrade(UpgradeType type, int cost, std::string path);
+	Upgrade(UpgradeType type, int cost);
 
 	int GetCost() { return _cost; }
 	void SetCost(int newCost) { _cost = newCost; }

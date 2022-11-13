@@ -87,19 +87,34 @@ void Player::AddLaser(b2World& world)
 
 void Player::Shoot(Upgrade& laserUpgrade)
 {
-    b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
-
     for (int i = 1; i <= laserUpgrade.GetLevel(); i++)
     {
-        if (i % 2 == 0)
+        float width = -Utility::PixelToMeters(_sprite.getGlobalBounds().width);
+        b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
+        
+
+        if (laserUpgrade.GetLevel() == 2)
         {
-            startPos.x -= Utility::PixelToMeters(_sprite.getGlobalBounds().width / laserUpgrade.GetLevel() * 2);
+            width *= -1;
+            startPos.x += width / 4.0f;
+            _lasers.emplace_back(_game, startPos);
+
+            _lasers.back().Move();
+            _lasers.back().SetAngle(_body->GetAngle());
         }
 
-        _lasers.emplace_back(_game, startPos);
+        else
+        {
+            _lasers.emplace_back(_game, startPos);
+            _lasers.back().Move();
+            _lasers.back().SetAngle(_body->GetAngle());
+        }
+    	
+        width *= -1;
 
-        _lasers.back().Move();
-        _lasers.back().SetAngle(_body->GetAngle());
+        startPos.x = width / ( 2 * i);
+
+        std::cout << startPos.x << std::endl;
     }
 
     _canShoot = false;
@@ -136,6 +151,11 @@ void Player::update(sf::Time elapsed)
 
 	// -------------------------------------------------------------------------------------------------------------
 	// Update the player's data.
+
+    if (GetCurrentLife() <= 0)
+    {
+	    
+    }
 
     // -------------------------------------------------------------------------------------------------------------
     // Update the player's attacks.

@@ -21,9 +21,7 @@ LifeBar::LifeBar(Player& player) : _player(player)
 
 void LifeBar::Update()
 {
-    
 	_currentLifeBar.setSize(sf::Vector2f(2 * _player.GetCurrentLife(), 20));
-    
 }
 
 void LifeBar::draw(sf::RenderTarget& target, sf::RenderStates states) const

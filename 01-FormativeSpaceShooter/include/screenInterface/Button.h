@@ -16,9 +16,10 @@ private:
 
 public:
 	void SetText(std::string newText) { _text.setString(newText); }
+	void SetPosition(float x, float y);
 
-	void Init(float x, float y, std::string string, std::string path);
-	void InitShape(float x, float y);
+	void Init(float x, float y, sf::Vector2f size, std::string string, std::string path);
+	void InitShape(float x, float y, sf::Vector2f size);
 	void InitText(std::string string);
 	void InitKeySprite(std::string path);
 

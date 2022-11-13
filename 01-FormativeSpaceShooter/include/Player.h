@@ -41,7 +41,7 @@ private:
     int _currentLife;
     int _maxLife = 100;
 
-    int _lives = 3;
+    int _maxLives = 3;
 
     bool _canShoot = true;
     sf::Time _lastShotDuration;
@@ -60,7 +60,7 @@ public:
 
     int GetCurrentLife() { return _currentLife; }
     int GetMaxLife() { return _maxLife; }
-    int GetLives() { return _lives; }
+    int GetMaxLives() { return _maxLives; }
     bool CanShoot() { return _canShoot; }
     void SetCanShootToFalse() { _canShoot = false; }
 

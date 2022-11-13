@@ -7,9 +7,8 @@ class Score : public sf::Drawable
 private:
 	sf::Font _font;
 	sf::Text _scoreText;
-	sf::Text _scorePointsText;
 
-	int _scorePoints = 0;
+	int _scorePoints = 1000;
 
 public:
 	Score();
@@ -19,6 +18,7 @@ public:
 	int GetScorePoints() { return _scorePoints; }
 	void IncreaseScore(int scorePoints) { _scorePoints += scorePoints; }
 	void DecreaseScore(int scorePoints) { _scorePoints -= scorePoints; }
+	void SetPosition(float x, float y) { _scoreText.setPosition(x, y); }
 
 	void Update();
 

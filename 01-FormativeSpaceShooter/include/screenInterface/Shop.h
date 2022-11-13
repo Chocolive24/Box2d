@@ -13,6 +13,9 @@ private:
 	Upgrade _laserUpgrade;
 	Upgrade _bombUpgrade;
 
+	Button _shopTitle;
+	sf::Text _instructions;
+	sf::Font _font;
 	Button _laserUpButton;
 
 	bool _mustBeUpdated = false;
@@ -22,7 +25,7 @@ public:
 
 	Upgrade& GetLaserUpgrade() { return _laserUpgrade; }
 
-	void BuyAnUpgrade(UpgradeType upgradeType);
+	void BuyAnUpgrade(Upgrade& upgrade);
 
 	void Update();
 

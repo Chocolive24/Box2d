@@ -4,18 +4,25 @@
 
 #include "core/Properties.h"
 
-void Button::Init(float x, float y, std::string string, std::string path)
+void Button::SetPosition(float x, float y)
 {
-	InitShape(x, y);
+	_shape.setPosition(x, y);
+	_text.setPosition(_shape.getPosition().x, _shape.getPosition().y - _text.getLocalBounds().height / 2.0f);
+	_sprite.setPosition(_shape.getPosition().x, _shape.getPosition().y + _shape.getLocalBounds().height / 1.75f);
+}
+
+void Button::Init(float x, float y, sf::Vector2f size, std::string string, std::string path)
+{
+	InitShape(x, y, size);
 
 	InitText(string);
 
 	InitKeySprite(path);
 }
 
-void Button::InitShape(float x, float y)
+void Button::InitShape(float x, float y, sf::Vector2f size)
 {
-	_shape.setSize(sf::Vector2f(300, 100));
+	_shape.setSize(size);
 	_shape.setOrigin(_shape.getLocalBounds().width / 2.0f, _shape.getLocalBounds().height / 2.0f);
 	_shape.setPosition(x, y);
 	//_shape.setFillColor(sf::Color(50, 50, 50));
