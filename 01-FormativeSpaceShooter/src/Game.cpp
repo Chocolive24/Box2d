@@ -12,6 +12,7 @@ Game::Game() :
     _contactListener(*this),
     _player(*this),
     _lifeBar(_player),
+	_BombUiManager(_player, *this),
 	_shop(_score)
 
 {
@@ -30,19 +31,19 @@ void Game::Init()
     CreateBackground();
 
     _startButton.Init(windowSize.x / 2.0f, windowSize.y / 4.0f, sf::Vector2f(300, 100),
-					  "START", "data/sprites/PNG/Keys/Space-Key.png");
+					  "START", 60,"data/sprites/PNG/Keys/Space-Key.png");
     _exitButton.Init(windowSize.x / 2.0f, windowSize.y * 0.75, sf::Vector2f(300, 100),
-        "EXIT", "data/sprites/PNG/Keys/Esc-Key.png");
+        "EXIT", 60, "data/sprites/PNG/Keys/Esc-Key.png");
 
     _gameOverButton.InitShape(windowSize.x / 2.0f, windowSize.y / 4.0f, sf::Vector2f(500, 100));
-    _gameOverButton.InitText("GAME OVER");
+    _gameOverButton.InitText("GAME OVER", 60);
 
     _restartButton.Init(windowSize.x / 2.0f, windowSize.y / 2.0f, sf::Vector2f(400, 100),
-        "RESTART", "data/sprites/PNG/Keys/Space-Key.png");
+        "RESTART", 60, "data/sprites/PNG/Keys/Space-Key.png");
 
     for (int width = 0; width < _player.GetMaxLives(); width++)
     {
-        _lives.emplace_back(_player);
+        _lives.emplace_back(_player, *this);
 
         _lives.back().SetPosition(_lifeBar.GetPosition().x + _lives.back().GetLocalBounds().width * width * 1.2f,
             _lifeBar.GetPosition().y + 2 * _lifeBar.GetLocalBounds().height);
@@ -77,26 +78,6 @@ void Game::CreateBackground()
 void Game::AddMeteors()
 {
     _meteors.emplace_back(*this);
-}
-
-void Game::UpdateLives()
-{
-    if (_player.GetCurrentLife() <= 0 && !_isPlayerDead)
-    {
-        if(_isDieAnimationFinished)
-        {
-            _lives.back().SetToLost();
-            _player.SetCurrentLifeToMax();
-        }
-    }
-
-    std::erase_if(_lives, [](Life& life) { return life.IsLost(); });
-
-    if (_lives.empty())
-    {
-        _isPlayerDead = true;
-    }
-
 }
 
 void Game::CheckInput()
@@ -177,9 +158,10 @@ void Game::CheckInput()
                 }
             }
 
-            if (event.key.code == sf::Keyboard::Key::Q && !_shopOpen)
+            if (event.key.code == sf::Keyboard::Key::Q && !_shopOpen && _player.GetBombNbr() > 0)
             {
                 _player.ThrowBomb(_world);
+                _bombsUI.front().SetToUsed();
                 _soundManager.PlayBombSound();
             }
 
@@ -191,10 +173,35 @@ void Game::CheckInput()
 
             else 
             {
-                if (event.key.code == sf::Keyboard::Key::Q && _shopOpen)
+                if (event.key.code == sf::Keyboard::Key::Num1)
                 {
                     _shop.BuyAnUpgrade(_shop.GetLaserUpgrade());
                 }
+
+                else if (event.key.code == sf::Keyboard::Key::Num2)
+                {
+                    _shop.BuyAnUpgrade(_shop.GetBombUpgrade());
+                    _player.SetBombNumber(1);
+
+                    if(_player.GetBombNbr() <= 5)
+                    {
+                        _bombsUI.emplace_front(_player, *this);
+
+                        _bombsUI.front().SetPosition(_lifeBar.GetPosition().x +
+                            _lives.back().GetLocalBounds().width * _spaceWidth * 1.2f - 3.0f,
+                            _lifeBar.GetPosition().y + 3.5 * _lifeBar.GetLocalBounds().height);
+                        _spaceWidth += 1;
+                    }
+
+                    
+                }
+
+                else if (event.key.code == sf::Keyboard::Key::Num3)
+                {
+                    _shop.BuyAnUpgrade(_shop.GetHpUpgrade());
+                    _player.SetNewLife(20);
+                }
+
                 else if (event.key.code == sf::Keyboard::Key::Escape && _shopOpen)
                 {
                     _shopOpen = false;
@@ -209,8 +216,6 @@ void Game::UpdateGame(sf::Time elapsed)
     if (_start && !_shopOpen && !_isPlayerDead)
     {
         _totalElapsed += elapsed;
-        
-        
 
         if (_totalElapsed.asSeconds() >= Properties::METEOR_COOLDOWN)
         {
@@ -232,32 +237,21 @@ void Game::UpdateGame(sf::Time elapsed)
 
         _lifeBar.Update();
 
+    	_lives.back().Update(elapsed, _lives);
+
+        _BombUiManager.Update(elapsed, _bombsUI);
+
         if (_lives.empty())
         {
             SetPlayerToDead();
         }
+        
+        
     }
-
-    if (_player.GetCurrentLife() <= 0)
-    {
-        _isDieAnimationFinished = false;
-
-        _dieAnimationTime += elapsed;
-
-        if (_dieAnimationTime.asSeconds() >= 2)
-        {
-            _isDieAnimationFinished = true;
-            _dieAnimationTime = sf::Time::Zero;
-        }
-    }
-
-    UpdateLives();
-
-    std::cout << _dieAnimationTime.asSeconds() << std::endl;
 
     if (_shopOpen)
     {
-        _score.SetPosition(Properties::WINDOW_WIDTH / 2.0f, 300);
+        _score.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.25f);
         _shop.Update();
         _exitButton.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.90f);
     }
@@ -265,7 +259,7 @@ void Game::UpdateGame(sf::Time elapsed)
     else
     {
         _score.SetPosition(Properties::WINDOW_WIDTH * 0.885f, Properties::WINDOW_HEIGHT * 0.02f);
-        _exitButton.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.75);
+        _exitButton.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.75f);
     }
     
 }
@@ -323,6 +317,11 @@ void Game::Render()
         for (auto& life : _lives)
         {
             _window.draw(life);
+        }
+
+        for (auto& bomb : _bombsUI)
+        {
+            _window.draw(bomb);
         }
 
         _window.draw(_score);

@@ -1,20 +1,35 @@
 #include "screenInterface/Life.h"
 
+#include "Game.h"
 #include "Player.h"
 
-Life::Life(Player& player) : _player(player)
+Life::Life(Player& player, Game& game) : _player(player), _game(game)
 {
-    if (!_texture.loadFromFile("data/sprites/PNG/UI/playerLife1_red.png"))
+    InitSprite("data/sprites/PNG/UI/playerLife1_red.png");
+    _sprite.setOrigin(0,0);
+}
+
+void Life::Update(sf::Time elapsed, std::list<Life>& lives)
+{
+    if (_player.GetCurrentLife() <= 0)
     {
-        return;
+        _duration += elapsed;
+
+        if (_duration.asSeconds() >= 2)
+        {
+            if (!_game.IsPlayerDead())
+            {
+                lives.back().SetToLost();
+                _player.SetCurrentLifeToMax();
+                _duration = sf::Time::Zero;
+            }
+        }
     }
 
-    _texture.setSmooth(true);
-
-    _sprite.setTexture(_texture);
+    std::erase_if(lives, [](Life& life) { return life.IsLost(); });
 }
 
 void Life::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(_sprite, states);
+    DrawableObject::draw(target, states);
 }

@@ -15,6 +15,7 @@
 #include <list>
 
 #include "Explosion.h"
+#include "screenInterface/BombUI.h"
 #include "screenInterface/Life.h"
 #include "screenInterface/LifeBar.h"
 #include "screenInterface/Score.h"
@@ -34,6 +35,9 @@ private:
 	Player _player;
 	LifeBar _lifeBar;
 	std::list<Life> _lives;
+	std::list<BombUI> _bombsUI;
+	BombUI _BombUiManager;
+	int _spaceWidth = 0;
 	Score _score;
 
 	std::list<Meteor> _meteors;
@@ -69,6 +73,7 @@ public:
 	Player& GetPlayer() { return _player; }
 	Score& GetScore() { return _score; }
 
+	bool IsPlayerDead() { return _isPlayerDead; }
 	void SetPlayerToDead() { _isPlayerDead = true; }
 
 	void Init();
@@ -76,8 +81,6 @@ public:
 	void CreateBackground();
 
 	void AddMeteors();
-
-	void UpdateLives();
 
 	void CheckInput();
 

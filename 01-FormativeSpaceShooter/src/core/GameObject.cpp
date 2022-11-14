@@ -7,15 +7,7 @@
 
 void GameObject::createSprite(std::string path)
 {
-    if (!_texture.loadFromFile(path))
-    {
-        return;
-    }
-
-	_texture.setSmooth(true);
-
-    _sprite.setTexture(_texture);
-    _sprite.setOrigin(_sprite.getGlobalBounds().width / 2.0f, _sprite.getGlobalBounds().height / 2.0f);
+    InitSprite(path);
 }
 
 void GameObject::createBody(b2World& world, b2Vec2 startPosition)
@@ -89,7 +81,5 @@ void GameObject::update(sf::Time elapsed)
 
 void GameObject::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    states.transform *= getTransform();
-
-    target.draw(_sprite, states);
+    DrawableObject::draw(target, states);
 }

@@ -8,37 +8,29 @@ Upgrade::Upgrade(UpgradeType type, int cost) :
 	_cost(cost)
 
 {
-	
+}
 
-	float fifthOfWindowW = Properties::WINDOW_WIDTH / 5.0f;
-	float sixthOfWindowH = Properties::WINDOW_HEIGHT * 0.60;
+void Upgrade::createPriceButton(float x, float y, sf::Vector2f size, std::string path)
+{
+	_priceButton.Init(x, y, size, std::to_string(_cost),
+		60, path);
+}
 
-	if (_type == UpgradeType::LASER)
-	{
-		createSprite("data/sprites/PNG/Lasers/laserRed01.png");
-
-		sf::Vector2f buttonsSize(300, 100);
-		_priceButton.Init(fifthOfWindowW, sixthOfWindowH, buttonsSize, std::to_string(_cost),
-			"data/sprites/PNG/Keys/Q-Key.png");
-
-		_sprite.setPosition(fifthOfWindowW, sixthOfWindowH - buttonsSize.y);
-		_sprite.scale(2, 2);
-		_sprite.rotate(45);
-	}
-
-	
-	//"data/sprites/PNG/Lasers/laserRed08.png"
-	
+void Upgrade::createTitle(std::string title)
+{
+	_title.Init(title, _priceButton.GetPosition().x,
+		_priceButton.GetPosition().y * 0.65f, 30, Properties::GREEN);
 }
 
 void Upgrade::UpdateCostText(std::string newText)
 {
 	_priceButton.SetText(newText);
+	_priceButton.SetTextOriginToMiddle();
 }
 
 void Upgrade::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-	GameObject::draw(target, states);
-	target.draw(_titleButton, states);
+	DrawableObject::draw(target, states);
+	target.draw(_title, states);
 	target.draw(_priceButton, states);
 }

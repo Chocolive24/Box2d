@@ -8,10 +8,9 @@ enum class UpgradeType
 	LASER,
 	BOMB,
 	HP,
-
 };
 
-class Upgrade : public GameObject
+class Upgrade : public DrawableObject
 {
 private:
 	UpgradeType _type;
@@ -22,7 +21,7 @@ private:
 	int _maxlevel = 5;
 
 	Button _priceButton;
-	Button _titleButton;
+	GameText _title;
 
 public:
 	Upgrade(UpgradeType type, int cost);
@@ -32,6 +31,9 @@ public:
 	int GetLevel() { return _level; }
 	int GetMaxLevel() { return _maxlevel; }
 	void UpLevel() { _level++; }
+
+	void createPriceButton(float x, float y, sf::Vector2f size, std::string path);
+	void createTitle(std::string title);
 
 	void UpdateCostText(std::string newText);
 

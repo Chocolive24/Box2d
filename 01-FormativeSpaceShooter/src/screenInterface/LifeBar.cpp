@@ -6,21 +6,21 @@
 
 LifeBar::LifeBar(Player& player) : _player(player)
 {
-    _damagedLifeBar.setSize(sf::Vector2f(2 * _player.GetMaxLife(), 20));
-    _damagedLifeBar.setPosition((float)Properties::WINDOW_WIDTH * 0.01f, (float)Properties::WINDOW_HEIGHT * 0.02f);
+    _damagedLifeBar = CreateAShape(sf::Vector2f((float)(2 * _player.GetMaxLife()), 20.0f),
+								   (float)Properties::WINDOW_WIDTH * 0.01f, 
+								   (float)Properties::WINDOW_HEIGHT * 0.02f, sf::Color::Red);
 
-    _damagedLifeBar.setFillColor(sf::Color::Red);
     _damagedLifeBar.setOutlineThickness(2.0f);
     _damagedLifeBar.setOutlineColor(sf::Color::Black);
 
-    _currentLifeBar.setSize(sf::Vector2f(2 * _player.GetCurrentLife(), 20));
-    _currentLifeBar.setPosition((float)Properties::WINDOW_WIDTH * 0.01f, (float)Properties::WINDOW_HEIGHT * 0.02f);
-
-    _currentLifeBar.setFillColor(Properties::GREEN);
+    _currentLifeBar = CreateAShape(sf::Vector2f((float)(2 * _player.GetMaxLife()), 20.0f),
+								    (float)Properties::WINDOW_WIDTH * 0.01f,
+								    (float)Properties::WINDOW_HEIGHT * 0.02f, Properties::GREEN);
 }
 
 void LifeBar::Update()
 {
+    _damagedLifeBar.setSize(sf::Vector2f(2 * _player.GetMaxLife(), 20));
 	_currentLifeBar.setSize(sf::Vector2f(2 * _player.GetCurrentLife(), 20));
 }
 

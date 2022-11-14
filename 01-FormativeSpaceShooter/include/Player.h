@@ -29,7 +29,7 @@ private:
 
     std::list<Laser> _lasers;
     std::list<Bomb> _bombs;
-    int _bombNbr = 3;
+    int _bombNbr = 0;
     Explosion _bombExplosion;
     bool _isAnExplosion = false;
 
@@ -46,6 +46,8 @@ private:
     bool _canShoot = true;
     sf::Time _lastShotDuration;
 
+    bool _isDead = false;
+
 public:
     Player(Game& game);
 
@@ -56,7 +58,11 @@ public:
 
     void SetLinearVelocity(b2Vec2 newVelocity) { _body->SetLinearVelocity(newVelocity); }
     void SetLinearDamping(float newDamping) { _body->SetLinearDamping(newDamping); }
-
+    int GetBombNbr() { return _bombNbr; }
+    void SetBombNumber(int nbr) { _bombNbr += nbr; }
+    void SetNewLife(int nbr) { _maxLife += nbr; _currentLife += nbr; }
+    bool IsDead() { return _isDead; }
+    void SetToDead() { _isDead = true; }
 
     int GetCurrentLife() { return _currentLife; }
     int GetMaxLife() { return _maxLife; }

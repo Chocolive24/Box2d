@@ -1,10 +1,11 @@
 #pragma once
 
+#include "core/DrawableObject.h"
 #include "SFML/Graphics.hpp"
 
 class Player;
 
-class LifeBar : public  sf::Drawable
+class LifeBar : public  DrawableObject 
 {
 private:
 	Player& _player;

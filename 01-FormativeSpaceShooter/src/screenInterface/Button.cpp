@@ -7,15 +7,16 @@
 void Button::SetPosition(float x, float y)
 {
 	_shape.setPosition(x, y);
-	_text.setPosition(_shape.getPosition().x, _shape.getPosition().y - _text.getLocalBounds().height / 2.0f);
+	_buttonText.SetTextPosition(_shape.getPosition().x, 
+		_shape.getPosition().y - _buttonText.GetGlobalBounds().height / 2.0f);
 	_sprite.setPosition(_shape.getPosition().x, _shape.getPosition().y + _shape.getLocalBounds().height / 1.75f);
 }
 
-void Button::Init(float x, float y, sf::Vector2f size, std::string string, std::string path)
+void Button::Init(float x, float y, sf::Vector2f size, std::string string, int charSize, std::string path)
 {
 	InitShape(x, y, size);
 
-	InitText(string);
+	InitText(string, charSize);
 
 	InitKeySprite(path);
 }
@@ -31,22 +32,10 @@ void Button::InitShape(float x, float y, sf::Vector2f size)
 	_shape.setOutlineColor(sf::Color::Black);
 }
 
-void Button::InitText(std::string string)
+void Button::InitText(std::string string, int charSize)
 {
-	if (!_font.loadFromFile("data/font/kenvector_future.ttf"))
-	{
-		return;
-	}
-
-	_text.setFont(_font);
-
-	_text.setString(string);
-	_text.setCharacterSize(60);
-	_text.setFillColor(Properties::GREEN);
-	_text.setStyle(sf::Text::Bold);
-
-	_text.setOrigin(_text.getLocalBounds().width / 2.0f, _text.getLocalBounds().height / 2.0f);
-	_text.setPosition(_shape.getPosition().x, _shape.getPosition().y - _text.getLocalBounds().height / 2.0f);
+	_buttonText.Init(string, _shape.getPosition().x, _shape.getPosition().y,
+		charSize, Properties::GREEN);
 }
 
 void Button::InitKeySprite(std::string path)
@@ -71,6 +60,6 @@ void Button::InitKeySprite(std::string path)
 void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(_shape,  states);
-	target.draw(_text,   states);
+	target.draw(_buttonText,   states);
 	target.draw(_sprite, states);
 }

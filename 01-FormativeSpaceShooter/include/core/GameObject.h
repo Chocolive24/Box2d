@@ -6,20 +6,15 @@
 #include <box2d/b2_polygon_shape.h>
 #include <SFML/Graphics.hpp>
 
+#include "DrawableObject.h"
 #include "UserData.h"
 
 /**
  * \brief Class that create basics game objects elements.
  */
-class GameObject : public sf::Drawable, public sf::Transformable
+class GameObject : public DrawableObject
 {
 protected:
-	// ---------------------------------------------------------------------------------------------------
-	// Sprite attributes.
-
-	sf::Texture _texture;
-	sf::Sprite _sprite;
-
 	// ---------------------------------------------------------------------------------------------------
 	// Body, User data and fixture attributes.
 	b2Body* _body = nullptr;
@@ -36,8 +31,6 @@ protected:
 	void createSprite(std::string path);
 
 	void createBody(b2World& world, b2Vec2 startPosition);
-
-	
 
 	b2PolygonShape createPolygonHitBox();
 	b2CircleShape createCicrleHitBox();
