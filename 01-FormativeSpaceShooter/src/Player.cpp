@@ -1,124 +1,103 @@
+#include "core/Properties.h"
+#include "core/Utility.h"
+#include "Game.h"
 #include "Player.h"
 
 #include <iostream>
 
-#include "Game.h"
-#include "core/Properties.h"
-#include "core/Utility.h"
+// -----------------------------------------------------------------------------------------------------------------
 
 Player::Player(Game& game) : _game(game), _bombExplosion(_game)
 {
-    // ---------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------
     // Shape Init.
 
     createSprite("data/sprites/PNG/playerShip1_red.png");
 
-    // ---------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------
     // Body Init.
 
     _startPosition = Utility::PixelsToMeters(sf::Vector2f(Properties::WINDOW_WIDTH / 2.0f,
         Properties::WINDOW_HEIGHT / 2.0f));
 
-    createBody(_game.GetWorld(), _startPosition);
+    createBody(_game.GetWorld(), _startPosition, b2_dynamicBody);
 
-    // ---------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------
     // Hit box Init.
 
     _hitBox = createPolygonHitBox();
 
-    // ---------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------
     // User data Init.
 
     _userData = new UserData(*this);
     _userData->SetType(UserDataType::PLAYER);
 
-    // ---------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------
     // Fixture Init.
 
-    createFixture(_hitBox, (int16)_userData->GetType(), _userData);
+    createFixture(_hitBox, (int16)_userData->GetType(), _userData, true);
 
-    // ---------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------
     // Life bar and Lives Init.
 
     SetCurrentLifeToMax();
 }
 
-void Player::Init(b2World& world)
-{
-    if (!_fireTexture.loadFromFile("data/sprites/PNG/Effects/fire07.png"))
-    {
-        return;
-    }
-
-    _fireTexture.setSmooth(true);
-
-    _fireSprite.setTexture(_fireTexture);
-    _fireSprite.setOrigin(_fireSprite.getGlobalBounds().width / 2.0f, _fireSprite.getGlobalBounds().height / 2.0f);
-}
-
-void Player::InitLifeBar()
-{
-
-}
-
-void Player::InitLives()
-{
-    
-}
+// -----------------------------------------------------------------------------------------------------------------
 
 void Player::Move(b2Vec2 force)
 {
     _body->SetLinearVelocity(_body->GetLinearVelocity() + force);
 }
 
+// -----------------------------------------------------------------------------------------------------------------
+
 void Player::Rotate(float omega)
 {
     _body->SetAngularVelocity(omega);
-    _body->ApplyTorque(_body->GetAngle(), true);
+    _body->ApplyTorque(omega, true);
     _body->SetTransform(_body->GetPosition(), _body->GetAngle());
     
     _sprite.rotate(_body->GetAngle());
 }
 
-void Player::AddLaser(b2World& world)
-{
-    
-}
+// -----------------------------------------------------------------------------------------------------------------
 
-void Player::Shoot(Upgrade& laserUpgrade)
+void Player::Shoot(int level)
 {
-    for (int i = 1; i <= laserUpgrade.GetLevel(); i++)
+    b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
+    float width = Utility::PixelToMeters(_sprite.getGlobalBounds().width);
+
+    if (level == 1)
     {
-        float width = -Utility::PixelToMeters(_sprite.getGlobalBounds().width);
-        b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
-        
+        AddLaserLvl1(width);
+    }
 
-        if (laserUpgrade.GetLevel() == 2)
-        {
-            width *= -1;
-            startPos.x += width / 4.0f;
-            _lasers.emplace_back(_game, startPos);
+    if (level == 2)
+    {
+        AddLaserLvl2(width);
+    }
 
-            _lasers.back().Move();
-            _lasers.back().SetAngle(_body->GetAngle());
-        }
+    else if (level == 3)
+    {
+        AddLaserLvl3(width);
+    }
 
-        else
-        {
-            _lasers.emplace_back(_game, startPos);
-            _lasers.back().Move();
-            _lasers.back().SetAngle(_body->GetAngle());
-        }
-    	
-        width *= -1;
+    else if (level == 4)
+    {
+        AddLaserLvl4(width);
+    }
 
-        startPos.x = width / ( 2 * i);
-
-        std::cout << startPos.x << std::endl;
+    else if (level == 5)
+    {
+        AddLaserLvl5(width);
     }
 
     _canShoot = false;
 }
+
+// -----------------------------------------------------------------------------------------------------------------
 
 void Player::ThrowBomb(b2World& world)
 {
@@ -134,12 +113,25 @@ void Player::ThrowBomb(b2World& world)
     }
 }
 
+// -----------------------------------------------------------------------------------------------------------------
+
 void Player::update(sf::Time elapsed)
 {
-    // -------------------------------------------------------------------------------------------------------------
-    // Update the ship.
+    // -----------------------------------------------------------------------------------------------------
+    // Update the player's sprite.
 
     GameObject::update(elapsed);
+
+    // -----------------------------------------------------------------------------------------------------
+	// Update the player's data.
+
+    if (GetCurrentLife() <= 0)
+    {
+        _currentLife = 0;
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // Update the player's attacks.
 
     _lastShotDuration += elapsed;
 
@@ -148,17 +140,6 @@ void Player::update(sf::Time elapsed)
         _canShoot = true;
         _lastShotDuration = sf::Time::Zero;
     }
-
-	// -------------------------------------------------------------------------------------------------------------
-	// Update the player's data.
-
-    if (GetCurrentLife() <= 0)
-    {
-        _currentLife = 0;
-    }
-
-    // -------------------------------------------------------------------------------------------------------------
-    // Update the player's attacks.
 
     std::erase_if(_lasers, [](Laser& laser) { return laser.IsDestroyed(); });
 
@@ -186,19 +167,10 @@ void Player::update(sf::Time elapsed)
 
     std::erase_if(_bombs, [](Bomb& bomb) { return bomb.IsDestroyed(); });
 
-    // -------------------------------------------------------------------------------------------------------------
-    // Tests.
-
-   /* std::cout << _hitBox.m_vertices->x << " " << _hitBox.m_vertices->y << std::endl;
-    std::cout << _shipSprite.getGlobalBounds().width << " " << _shipSprite.getGlobalBounds().height << std::endl;*/
-
-    //std::cout << _body->GetLinearVelocity().x << " " << _body->GetLinearVelocity().y << std::endl;
-    //std::cout << _body->GetAngularVelocity() << std::endl;
-
-    /*std::cout << "body position [" << _body->GetPosition().x << ":" << _body->GetPosition().y
-        << "]|shape position [" << _shipSprite.getPosition().x << ":" << _shipSprite.getPosition().y << "]" << std::endl;*/
-    //std::cout << _body->GetLinearVelocity().x << " " << _body->GetLinearVelocity().y << std::endl;
+    // -----------------------------------------------------------------------------------------------------
 }
+
+// -----------------------------------------------------------------------------------------------------------------
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
@@ -214,6 +186,77 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
     }
 
     target.draw(_bombExplosion);
-    
-
 }
+
+// -----------------------------------------------------------------------------------------------------------------
+
+void Player::AddLaserLvl1(float spriteWidth)
+{
+    b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
+    _lasers.emplace_back(_game, startPos, _body->GetAngle());
+    _lasers.back().Move();
+    _lasers.back().SetAngle(_body->GetAngle());
+}
+
+// -----------------------------------------------------------------------------------------------------------------
+
+void Player::AddLaserLvl2(float spriteWidth)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
+        spriteWidth *= -1;
+        startPos.x += spriteWidth / 4.0f;
+        _lasers.emplace_back(_game, startPos, _body->GetAngle());
+        _lasers.back().Move();
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------
+
+void Player::AddLaserLvl3(float spriteWidth)
+{
+    AddLaserLvl2(spriteWidth);
+    AddLaserLvl1(spriteWidth);
+}
+
+// -----------------------------------------------------------------------------------------------------------------
+
+void Player::AddLaserLvl4(float spriteWidth)
+{
+    for (int i = 1; i <= 4; i++)
+    {
+        b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
+
+        if (i < 3)
+        {
+            _lasers.emplace_back(_game, b2Vec2(startPos.x - i * spriteWidth / 6.0f, startPos.y),
+                _body->GetAngle());
+        }
+
+        else
+        {
+            _lasers.emplace_back(_game, b2Vec2(startPos.x + i / 2 * spriteWidth / 6.0f, startPos.y),
+                _body->GetAngle());
+        }
+
+        _lasers.back().Move();
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------
+
+void Player::AddLaserLvl5(float spriteWidth)
+{
+    b2Vec2 startPos(_body->GetPosition().x - spriteWidth / 2.0f, _body->GetPosition().y + 0.6f);
+
+    for (int i = 1; i < 6; i++)
+    {
+        _lasers.emplace_back(_game, b2Vec2(startPos.x + i * spriteWidth / 5.0f, startPos.y),
+            _body->GetAngle());
+
+        _lasers.back().Move();
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------------

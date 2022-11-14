@@ -23,6 +23,8 @@ private:
 
 	bool _isDestroyed = false;
 
+	sf::Time _duration;
+
 	sf::Sound _sound;
 	sf::SoundBuffer _buffer;
 

@@ -13,12 +13,12 @@ Meteor::Meteor(Game& game) : _game(game)
 
     b2Vec2 randomMeterPos = InitRndPosAndVelocity();
 
-    createBody(_game.GetWorld(), randomMeterPos);
+    createBody(_game.GetWorld(), randomMeterPos, b2_dynamicBody);
     b2CircleShape hitBox = createCicrleHitBox();
     _userData = new UserData(*this);
     _userData->SetType(UserDataType::METEOR);
 
-    createFixture(hitBox, (int16)_userData->GetType(), _userData);
+    createFixture(hitBox, (int16)_userData->GetType(), _userData, true);
 }
 
 Meteor::~Meteor()

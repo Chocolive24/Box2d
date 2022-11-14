@@ -15,6 +15,7 @@ public:
 	static constexpr int METEOR_POINTS = 10;
 
 	static constexpr float LASER_COOLDOWN = 0.5f;
+	static constexpr float BOMB_COOLDOWN = 2.0f;
 	static constexpr float METEOR_COOLDOWN = 1.0f;
 
 	static void UpdateTime();

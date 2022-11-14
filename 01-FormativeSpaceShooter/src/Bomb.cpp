@@ -11,14 +11,14 @@ Bomb::Bomb(Game& game, b2Vec2 playerPos) : _game(game)
 {
     createSprite("data/sprites/PNG/Lasers/laserRed08.png");
 
-    createBody(_game.GetWorld(), playerPos);
+    createBody(_game.GetWorld(), playerPos, b2_kinematicBody);
     b2CircleShape hitBox = createCicrleHitBox();
     _userData = new UserData(*this);
     _userData->SetType(UserDataType::BOMB);
 
-    createFixture(hitBox, (int16)_userData->GetType(), _userData);
+    createFixture(hitBox, (int16)_userData->GetType(), _userData, false);
 
-    _velocity = b2Vec2(0.0f, 3.0f);
+    _velocity = b2Vec2(0.0f, 1.5f);
 }
 
 Bomb::~Bomb()
@@ -40,6 +40,13 @@ void Bomb::Move()
 void Bomb::update(sf::Time elapsed)
 {
     GameObject::update(elapsed);
+
+    _duration += elapsed;
+
+    if (_duration.asSeconds() >= Properties::BOMB_COOLDOWN)
+    {
+        SetToDestroyed();
+    }
 
 	if (_isDestroyed)
 	{

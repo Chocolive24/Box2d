@@ -152,7 +152,7 @@ void Game::CheckInput()
                 {
                     if (_player.CanShoot())
                     {
-                        _player.Shoot(_shop.GetLaserUpgrade());
+                        _player.Shoot(_shop.GetLaserUpgrade().GetLevel());
                         _soundManager.PlayLaserSound();
                     }
                 }
@@ -188,7 +188,7 @@ void Game::CheckInput()
                         _bombsUI.emplace_front(_player, *this);
 
                         _bombsUI.front().SetPosition(_lifeBar.GetPosition().x +
-                            _lives.back().GetLocalBounds().width * _spaceWidth * 1.2f - 3.0f,
+                            _lives.front().GetLocalBounds().width * _spaceWidth * 1.2f - 3.0f,
                             _lifeBar.GetPosition().y + 3.5 * _lifeBar.GetLocalBounds().height);
                         _spaceWidth += 1;
                     }

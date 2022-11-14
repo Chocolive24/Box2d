@@ -1,9 +1,11 @@
 # Box2d
 
-* Faire le full shop -> add des bombes et des hp.
-* ajouter les bombes en dessous des vies (x3)
-
 * faire l'animation de mort.
+
+* ajouter les bordures pas sortir écran.
+* corriger les lasers.
+* cooldown des bombes pour qu'elles explosent.
+* faire les rotations du joueur.
 
 * corriger les bombes.
 * ajouter des meteors plus le temps avance.

@@ -38,6 +38,7 @@ private:
 	std::list<BombUI> _bombsUI;
 	BombUI _BombUiManager;
 	int _spaceWidth = 0;
+	bool _updateBombsUI = false;
 	Score _score;
 
 	std::list<Meteor> _meteors;

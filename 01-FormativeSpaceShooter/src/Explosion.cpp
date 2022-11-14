@@ -22,7 +22,7 @@ void Explosion::Init(Game& game, b2Vec2 meteorPosition)
 {
     createSprite("data/sprites/PNG/Effects/star3.png");
 
-    createBody(_game.GetWorld(), meteorPosition);
+    createBody(_game.GetWorld(), meteorPosition, b2_kinematicBody);
 
     sf::Vector2f position(Utility::MetersToPixels(meteorPosition));
 
@@ -54,12 +54,13 @@ void Explosion::update(sf::Time elapsed)
             _userData = new UserData(*this);
             _userData->SetType(UserDataType::EXPLOSION);
 
-            createFixture(hitBox, (int16)_userData->GetType(), _userData);
+            createFixture(hitBox, (int16)_userData->GetType(), _userData, true);
         }
 
         else
         {
             _isAnExplosion = false;
+            _game.GetWorld().DestroyBody(_body);
             //_isExplosionFinished = true;
             _duration = sf::Time::Zero;
         }
