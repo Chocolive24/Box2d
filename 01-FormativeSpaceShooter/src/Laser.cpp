@@ -34,7 +34,9 @@ Laser::Laser(Game& game, b2Vec2 playerPos, float angle) : _game(game)
     // -----------------------------------------------------------------------------------------------------
     // Fixture Init.
 
-    createFixture(_hitBox, (int16)_userData->GetType(), _userData, true);
+    createFixture(_hitBox, 1.0f, 0.1f, 
+				  (uint16)_userData->GetType(),
+				  (uint16)UserDataType::METEOR, _userData, false);
 
     // -----------------------------------------------------------------------------------------------------
     // Velocity Init.

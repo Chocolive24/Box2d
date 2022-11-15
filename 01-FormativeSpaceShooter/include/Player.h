@@ -26,7 +26,7 @@ private:
 
     std::list<Laser> _lasers;
     std::list<Bomb> _bombs;
-    int _bombNbr = 0;
+    int _bombNbr = 1;
     Explosion _bombExplosion;
     bool _isAnExplosion = false;
 
@@ -40,6 +40,7 @@ private:
 
     int _maxLives = 3;
 
+    bool _canMove = true;
     bool _canShoot = true;
     sf::Time _lastShotDuration;
 
@@ -87,6 +88,8 @@ public:
     int GetBombNbr() { return _bombNbr; }
     void SetBombNumber(int nbr) { _bombNbr += nbr; }
     void SetNewLife(int nbr) { _maxLife += nbr; _currentLife += nbr; }
+    bool CanMove() { return _canMove; }
+    void SetToNotMove() { _canMove = false; }
     bool IsDead() { return _isDead; }
     void SetToDead() { _isDead = true; }
 

@@ -12,7 +12,8 @@ Game::Game() :
     _contactListener(*this),
     _player(*this),
     _lifeBar(_player),
-	_BombUiManager(_player, *this),
+	_bombUIManager(_player, *this),
+	_animationManager(_player),
 	_shop(_score)
 
 {
@@ -29,6 +30,12 @@ void Game::Init()
     _window.setFramerateLimit(120);
 
     CreateBackground();
+
+    _edges.emplace_back(*this, Properties::LEFT_DOWN_CORNER, Properties::RIGHT_DOWN_CORNER);
+    _edges.emplace_back(*this, Properties::LEFT_DOWN_CORNER, Properties::LEFT_UP_CORNER);
+    _edges.emplace_back(*this, Properties::LEFT_UP_CORNER, Properties::RIGHT_UP_CORNER);
+    _edges.emplace_back(*this, Properties::RIGHT_UP_CORNER, Properties::RIGHT_DOWN_CORNER);
+
 
     _startButton.Init(windowSize.x / 2.0f, windowSize.y / 4.0f, sf::Vector2f(300, 100),
 					  "START", 60,"data/sprites/PNG/Keys/Space-Key.png");
@@ -49,6 +56,7 @@ void Game::Init()
             _lifeBar.GetPosition().y + 2 * _lifeBar.GetLocalBounds().height);
     }
 
+    AddBombsUI();
 }
 
 void Game::CreateBackground()
@@ -78,6 +86,20 @@ void Game::CreateBackground()
 void Game::AddMeteors()
 {
     _meteors.emplace_back(*this);
+}
+
+void Game::AddBombsUI()
+{
+    _bombsUI.clear();
+
+    for (int i = 0; i < _player.GetBombNbr(); i++)
+    {
+        _bombsUI.emplace_front(_player, *this);
+
+        _bombsUI.front().SetPosition(_lifeBar.GetPosition().x +
+            _lives.front().GetLocalBounds().width * i * 1.2f - 3.0f,
+            _lifeBar.GetPosition().y + 3.5 * _lifeBar.GetLocalBounds().height);
+    }
 }
 
 void Game::CheckInput()
@@ -135,7 +157,7 @@ void Game::CheckInput()
 
         else if (event.type == sf::Event::KeyReleased)
         {
-            if (event.key.code == sf::Keyboard::Key::Space)
+            if (event.key.code == sf::Keyboard::Key::Space && !_shopOpen)
             {
                 if (!_start)
                 {
@@ -165,46 +187,44 @@ void Game::CheckInput()
                 _soundManager.PlayBombSound();
             }
 
-            if (!_shopOpen)
+            if (_start)
             {
-                if (event.key.code == sf::Keyboard::Key::Num1)
-                    _shopOpen = true;
-            }
-
-            else 
-            {
-                if (event.key.code == sf::Keyboard::Key::Num1)
+                if (!_shopOpen)
                 {
-                    _shop.BuyAnUpgrade(_shop.GetLaserUpgrade());
+                    if (event.key.code == sf::Keyboard::Key::Num1)
+                        _shopOpen = true;
                 }
 
-                else if (event.key.code == sf::Keyboard::Key::Num2)
+                else
                 {
-                    _shop.BuyAnUpgrade(_shop.GetBombUpgrade());
-                    _player.SetBombNumber(1);
-
-                    if(_player.GetBombNbr() <= 5)
+                    if (event.key.code == sf::Keyboard::Key::Num1)
                     {
-                        _bombsUI.emplace_front(_player, *this);
-
-                        _bombsUI.front().SetPosition(_lifeBar.GetPosition().x +
-                            _lives.front().GetLocalBounds().width * _spaceWidth * 1.2f - 3.0f,
-                            _lifeBar.GetPosition().y + 3.5 * _lifeBar.GetLocalBounds().height);
-                        _spaceWidth += 1;
+                        _shop.BuyAnUpgrade(_shop.GetLaserUpgrade());
                     }
 
-                    
-                }
+                    else if (event.key.code == sf::Keyboard::Key::Num2)
+                    {
+                        if (_player.GetBombNbr() <= 5 && _shop.BuyAnUpgrade(_shop.GetBombUpgrade()))
+                        {
+                            _player.SetBombNumber(1);
+                            AddBombsUI();
+                        }
 
-                else if (event.key.code == sf::Keyboard::Key::Num3)
-                {
-                    _shop.BuyAnUpgrade(_shop.GetHpUpgrade());
-                    _player.SetNewLife(20);
-                }
 
-                else if (event.key.code == sf::Keyboard::Key::Escape && _shopOpen)
-                {
-                    _shopOpen = false;
+                    }
+
+                    else if (event.key.code == sf::Keyboard::Key::Num3)
+                    {
+                        if (_shop.BuyAnUpgrade(_shop.GetHpUpgrade()))
+                        {
+                            _player.SetNewLife(20);
+                        }
+                    }
+
+                    else if (event.key.code == sf::Keyboard::Key::Escape && _shopOpen)
+                    {
+                        _shopOpen = false;
+                    }
                 }
             }
         }
@@ -239,7 +259,7 @@ void Game::UpdateGame(sf::Time elapsed)
 
     	_lives.back().Update(elapsed, _lives);
 
-        _BombUiManager.Update(elapsed, _bombsUI);
+        _bombUIManager.Update(elapsed, _bombsUI);
 
         if (_lives.empty())
         {
@@ -281,6 +301,13 @@ void Game::UpdateGameObjects(sf::Time elapsed)
     std::erase_if(_meteors, [](Meteor& meteor) { return meteor.IsDestroyed(); });
 
     _player.update(elapsed);
+
+    if (_isPlayerCollidingMeteor)
+    {
+        _animationManager.CollisionWithMeteorAnim(elapsed, _isPlayerCollidingMeteor);
+    }
+
+    std::cout << _isPlayerCollidingMeteor << std::endl;
 }
 
 void Game::Render()
@@ -356,11 +383,11 @@ int Game::GameLoop()
 {
     while (_window.isOpen())
     {
-        sf::Time elapsed = _clock.restart();
+        _elapsed = _clock.restart();
 
         CheckInput();
 
-        UpdateGame(elapsed);
+        UpdateGame(_elapsed);
 
         Render();
     }

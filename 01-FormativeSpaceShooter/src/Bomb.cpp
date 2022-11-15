@@ -16,7 +16,10 @@ Bomb::Bomb(Game& game, b2Vec2 playerPos) : _game(game)
     _userData = new UserData(*this);
     _userData->SetType(UserDataType::BOMB);
 
-    createFixture(hitBox, (int16)_userData->GetType(), _userData, false);
+    createFixture(hitBox, 2.0f, 0.5f, 
+				  (int16)_userData->GetType(),
+		          (uint16)UserDataType::METEOR,
+		          _userData, false);
 
     _velocity = b2Vec2(0.0f, 1.5f);
 }

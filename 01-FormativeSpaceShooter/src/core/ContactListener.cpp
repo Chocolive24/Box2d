@@ -28,8 +28,8 @@ void ContactListener::BeginContact(b2Contact* contact)
 	// ---------------------------------------------------------------------------------------------------------
 	// Get the group index of the bodies.
 
-	auto userDataA = static_cast<UserDataType>(bodyA->GetFixtureList()->GetFilterData().groupIndex);
-	auto userDataB = static_cast<UserDataType>(bodyB->GetFixtureList()->GetFilterData().groupIndex);
+	auto userDataA = static_cast<UserDataType>(bodyA->GetFixtureList()->GetFilterData().categoryBits);
+	auto userDataB = static_cast<UserDataType>(bodyB->GetFixtureList()->GetFilterData().categoryBits);
 
 	// ---------------------------------------------------------------------------------------------------------
 	// Get the pointers of the fixture.
@@ -51,6 +51,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			player->GetPlayer()->TakeDamage(20);
 			meteor->GetMeteor()->SetToDestroyed();
+			_game.SetPlayerToCollidingMeteor();
 		}
 
 		else if (userDataB == UserDataType::BOMB)
@@ -60,6 +61,16 @@ void ContactListener::BeginContact(b2Contact* contact)
 			//player->GetPlayer()->TakeDamage(100);
 			bomb->GetBomb()->SetToDestroyed();
 		}
+
+		else if (userDataB == UserDataType::EDGE)
+		{
+			auto* edge = reinterpret_cast<UserData*>(bPointer);
+
+			player->GetPlayer()->Move(b2Vec2(0, 0));
+
+			std::cout << "EDGE";
+		}
+
 	}
 
 	// Case user data B = player.
@@ -81,6 +92,15 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			//player->GetPlayer()->TakeDamage(100);
 			bomb->GetBomb()->SetToDestroyed();
+		}
+
+		else if (userDataA == UserDataType::EDGE)
+		{
+			auto* edge = reinterpret_cast<UserData*>(aPointer);
+
+			player->GetPlayer()->Move(b2Vec2(0, 0));
+
+			std::cout << "EDGE";
 		}
 	}
 
@@ -182,9 +202,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 			meteorA->GetMeteor()->SetToDestroyed();
 			explosion->GetExplosion()->SetToDestroyed();
 		}
-
 	}
-
 	// The other meteors collisions are already handled
 }
 
@@ -225,5 +243,18 @@ void ContactListener::EndContact(b2Contact* contact)
 			explosion->GetExplosion()->SetToDestroyed();
 		}
 
+	}
+
+	if (userDataB == UserDataType::METEOR)
+	{
+		auto* meteor = reinterpret_cast<UserData*>(bPointer);
+
+		if (userDataA == UserDataType::EDGE)
+		{
+			auto* edge = reinterpret_cast<UserData*>(aPointer);
+
+			meteor->GetMeteor()->setIsSensor(true);
+			std::cout << "yo";
+		}
 	}
 }

@@ -10,7 +10,7 @@
 Player::Player(Game& game) : _game(game), _bombExplosion(_game)
 {
     // -----------------------------------------------------------------------------------------------------
-    // Shape Init.
+    // Sprite Init.
 
     createSprite("data/sprites/PNG/playerShip1_red.png");
 
@@ -36,7 +36,10 @@ Player::Player(Game& game) : _game(game), _bombExplosion(_game)
     // -----------------------------------------------------------------------------------------------------
     // Fixture Init.
 
-    createFixture(_hitBox, (int16)_userData->GetType(), _userData, true);
+    createFixture(_hitBox, 5.0f, 0.5f, 
+				  (uint16)UserDataType::PLAYER, 
+				  uint16(UserDataType::EDGE) | uint16(UserDataType::METEOR),
+				  _userData, false);
 
     // -----------------------------------------------------------------------------------------------------
     // Life bar and Lives Init.
@@ -230,13 +233,13 @@ void Player::AddLaserLvl4(float spriteWidth)
 
         if (i < 3)
         {
-            _lasers.emplace_back(_game, b2Vec2(startPos.x - i * spriteWidth / 6.0f, startPos.y),
+            _lasers.emplace_back(_game, b2Vec2(startPos.x - i * spriteWidth / 5.0f, startPos.y),
                 _body->GetAngle());
         }
 
         else
         {
-            _lasers.emplace_back(_game, b2Vec2(startPos.x + i / 2 * spriteWidth / 6.0f, startPos.y),
+            _lasers.emplace_back(_game, b2Vec2(startPos.x + i / 2 * spriteWidth / 5.0f, startPos.y),
                 _body->GetAngle());
         }
 
@@ -250,9 +253,9 @@ void Player::AddLaserLvl5(float spriteWidth)
 {
     b2Vec2 startPos(_body->GetPosition().x - spriteWidth / 2.0f, _body->GetPosition().y + 0.6f);
 
-    for (int i = 1; i < 6; i++)
+    for (int i = 0; i < 5; i++)
     {
-        _lasers.emplace_back(_game, b2Vec2(startPos.x + i * spriteWidth / 5.0f, startPos.y),
+        _lasers.emplace_back(_game, b2Vec2(startPos.x + i * spriteWidth / 4.0f, startPos.y),
             _body->GetAngle());
 
         _lasers.back().Move();

@@ -54,7 +54,10 @@ void Explosion::update(sf::Time elapsed)
             _userData = new UserData(*this);
             _userData->SetType(UserDataType::EXPLOSION);
 
-            createFixture(hitBox, (int16)_userData->GetType(), _userData, true);
+            createFixture(hitBox, 20.0f, 0.5f, 
+						  (uint16)UserDataType::EXPLOSION,
+						  (uint16)UserDataType::METEOR, 
+						  _userData, true);
         }
 
         else

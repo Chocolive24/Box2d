@@ -12,4 +12,6 @@ protected:
 public:
 	void InitSprite(std::string path);
 	sf::RectangleShape CreateAShape(sf::Vector2f size, float x, float y, sf::Color fillColor);
+
+	sf::Sprite& GetSprite() { return _sprite; }
 };

@@ -27,7 +27,7 @@ public:
 	Upgrade& GetBombUpgrade() { return _bombUpgrade; }
 	Upgrade& GetHpUpgrade() { return _hpUpgrade; }
 
-	void BuyAnUpgrade(Upgrade& upgrade);
+	bool BuyAnUpgrade(Upgrade& upgrade);
 
 	void Update();
 

@@ -2,13 +2,11 @@
 
 * faire l'animation de mort.
 
-* ajouter les bordures pas sortir écran.
-* corriger les lasers.
-* cooldown des bombes pour qu'elles explosent.
-* faire les rotations du joueur.
+* corriger les lasers. JE CROIS QUE C?EST BOn
+* cooldown des bombes pour qu'elles explosent. JE CROIS AUSSI
+* faire les rotations du joueur. NON MDR
 
-* corriger les bombes.
+* corriger les bombes. BOF UN Peu
 * ajouter des meteors plus le temps avance.
-* ajouter meteor sur les autres parties du screen.
 * ajouter les vagues ou on peut pas bouger et les vagues ou on peut pas tirer.
 * faire button pour voir les controles.

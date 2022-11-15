@@ -34,7 +34,8 @@ protected:
 	b2PolygonShape createPolygonHitBox();
 	b2CircleShape createCicrleHitBox();
 
-	void createFixture(b2Shape& hitBox, int16 userDataIndex, UserData* userData, bool isSensor);
+	void createFixture(b2Shape& hitBox, float density, float restitution,
+						uint16 categoryBits, uint16 maskBits, UserData* userData, bool isSensor);
 
 	// ---------------------------------------------------------------------------------------------------
 	// Methods related to the game loop.
@@ -44,4 +45,7 @@ protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 	// ---------------------------------------------------------------------------------------------------
+
+public:
+	void setIsSensor(bool isSensor) { _fixtureDef.isSensor = isSensor; }
 };

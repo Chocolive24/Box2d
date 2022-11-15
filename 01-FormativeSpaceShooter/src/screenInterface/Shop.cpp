@@ -33,9 +33,6 @@ Shop::Shop(Score& score) :
 	_laserUpgrade.createPriceButton(fifthOfWindowW, sixthOfWindowH, buttonsSize,
 		"data/sprites/PNG/Keys/1-Key.png");
 	_laserUpgrade.createTitle("+ 1 Laser");
-	
-
-	
 
 	_bombUpgrade.InitSprite("data/sprites/PNG/Lasers/laserRed08.png");
 	_bombUpgrade.setPosition(fifthOfWindowW* 2.5f, sixthOfWindowH - buttonsSize.y);
@@ -56,15 +53,19 @@ Shop::Shop(Score& score) :
 	_hpUpgrade.createTitle("+ 20 HP");
 }
 
-void Shop::BuyAnUpgrade(Upgrade& upgrade)
+bool Shop::BuyAnUpgrade(Upgrade& upgrade)
 {
 	if (_score.GetScorePoints() >= upgrade.GetCost() &&
-		upgrade.GetLevel() <= upgrade.GetMaxLevel())
+		upgrade.GetLevel() < upgrade.GetMaxLevel())
 	{
 		_score.DecreaseScore(upgrade.GetCost());
 		upgrade.SetCost(upgrade.GetCost() * 2);
 		upgrade.UpLevel();
+
+		return true;
 	}
+
+	return false;
 }
 
 void Shop::Update()

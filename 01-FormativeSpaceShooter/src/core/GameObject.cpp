@@ -53,16 +53,19 @@ b2CircleShape GameObject::createCicrleHitBox()
 
 // -----------------------------------------------------------------------------------------------------------------
 
-void GameObject::createFixture(b2Shape& hitBox, int16 userDataIndex, UserData* userData, bool isSensor)
+void GameObject::createFixture(b2Shape& hitBox, float density, float restitution,
+							   uint16 categoryBits, uint16 maskBits, UserData* userData, bool isSensor)
 {
     _fixtureDef.shape = &hitBox;
-    _fixtureDef.density = 2.0f;
-    _fixtureDef.friction = 0.0f;
+    _fixtureDef.density = density;
+    _fixtureDef.friction = 0.2f;
+    _fixtureDef.restitution = restitution;
     _fixtureDef.isSensor = isSensor;
 
     if(!_addedToGroupIndex)
     {
-        _fixtureDef.filter.groupIndex = userDataIndex;
+        _fixtureDef.filter.categoryBits = categoryBits;
+        _fixtureDef.filter.maskBits = maskBits;
         _addedToGroupIndex = true;
     }
 
