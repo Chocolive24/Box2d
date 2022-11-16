@@ -14,6 +14,17 @@ float Utility::PixelToMeters(float pixels)
 	return pixels / Properties::PIXEL_METER_RATIO;
 }
 
+float Utility::DegToRad(float degrees)
+{
+	return (degrees * M_PI / 180.0f);
+}
+
+float Utility::RadToDeg(float radians)
+{
+	
+	return (radians / M_PI * 180.0f);
+}
+
 sf::Vector2f Utility::MetersToPixels(b2Vec2 meters)
 {
 	return sf::Vector2f(meters.x * Properties::PIXEL_METER_RATIO, -1.0f * meters.y * Properties::PIXEL_METER_RATIO);

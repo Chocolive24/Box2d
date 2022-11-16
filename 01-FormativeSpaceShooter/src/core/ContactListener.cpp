@@ -51,26 +51,17 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			player->GetPlayer()->TakeDamage(20);
 			meteor->GetMeteor()->SetToDestroyed();
-			_game.SetPlayerToCollidingMeteor();
+			//_game.SetPlayerToCollidingMeteor();
 		}
 
 		else if (userDataB == UserDataType::BOMB)
 		{
 			auto* bomb = reinterpret_cast<UserData*>(bPointer);
 
-			//player->GetPlayer()->TakeDamage(100);
+			std::cout << "OUI";
+			player->GetPlayer()->TakeDamage(100);
 			bomb->GetBomb()->SetToDestroyed();
 		}
-
-		else if (userDataB == UserDataType::EDGE)
-		{
-			auto* edge = reinterpret_cast<UserData*>(bPointer);
-
-			player->GetPlayer()->Move(b2Vec2(0, 0));
-
-			std::cout << "EDGE";
-		}
-
 	}
 
 	// Case user data B = player.
@@ -93,15 +84,6 @@ void ContactListener::BeginContact(b2Contact* contact)
 			//player->GetPlayer()->TakeDamage(100);
 			bomb->GetBomb()->SetToDestroyed();
 		}
-
-		else if (userDataA == UserDataType::EDGE)
-		{
-			auto* edge = reinterpret_cast<UserData*>(aPointer);
-
-			player->GetPlayer()->Move(b2Vec2(0, 0));
-
-			std::cout << "EDGE";
-		}
 	}
 
 	// ---------------------------------------------------------------------------------------------------------
@@ -117,7 +99,8 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			laser->GetLaser()->SetToDestroyed();
 			meteor->GetMeteor()->SetToDestroyed();
-			_game.GetScore().IncreaseScore(Properties::METEOR_POINTS);
+			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
+			_game.GetWaveManager().GetDestroyWave().IncreaseEntityDestroyed(1);
 		}
 
 		else if (userDataB == UserDataType::BOMB)
@@ -139,7 +122,8 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			laser->GetLaser()->SetToDestroyed();
 			meteor->GetMeteor()->SetToDestroyed();
-			_game.GetScore().IncreaseScore(Properties::METEOR_POINTS);
+			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
+			_game.GetWaveManager().GetDestroyWave().IncreaseEntityDestroyed(1);
 		}
 
 		else if (userDataA == UserDataType::BOMB)

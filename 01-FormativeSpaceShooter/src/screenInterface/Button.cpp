@@ -8,7 +8,7 @@ void Button::SetPosition(float x, float y)
 {
 	_shape.setPosition(x, y);
 	_buttonText.SetTextPosition(_shape.getPosition().x, 
-		_shape.getPosition().y - _buttonText.GetGlobalBounds().height / 2.0f);
+		_shape.getPosition().y - _buttonText.GetLocalBounds().height / 2.0f);
 	_sprite.setPosition(_shape.getPosition().x, _shape.getPosition().y + _shape.getLocalBounds().height / 1.75f);
 }
 

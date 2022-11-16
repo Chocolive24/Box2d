@@ -18,7 +18,7 @@ Meteor::Meteor(Game& game) : _game(game)
     _userData = new UserData(*this);
     _userData->SetType(UserDataType::METEOR);
 
-    createFixture(hitBox, 10.0f, 0.5f,
+    createFixture(hitBox, 2.0f, 0.5f,
 				  (uint16)UserDataType::METEOR,
 				  (uint16)UserDataType::METEOR | (uint16)UserDataType::PLAYER |
 				  (uint16)UserDataType::LASER | (uint16)UserDataType::BOMB | (uint16)UserDataType::EXPLOSION,

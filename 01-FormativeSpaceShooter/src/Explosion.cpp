@@ -31,6 +31,17 @@ void Explosion::Init(Game& game, b2Vec2 meteorPosition)
     _areaOfEffect.setOrigin(_areaOfEffect.getLocalBounds().width / 2.0f,
 							_areaOfEffect.getLocalBounds().height / 2.0f);
     _areaOfEffect.setFillColor(sf::Color(150, 0, 0, 100));
+
+    b2CircleShape hitBox;
+    hitBox.m_radius = Utility::PixelToMeters(_areaOfEffect.getRadius());
+
+    _userData = new UserData(*this);
+    _userData->SetType(UserDataType::EXPLOSION);
+
+    createFixture(hitBox, 20.0f, 0.5f,
+        (uint16)UserDataType::EXPLOSION,
+        (uint16)UserDataType::METEOR,
+        _userData, true);
 }
 
 void Explosion::update(sf::Time elapsed)
@@ -46,18 +57,12 @@ void Explosion::update(sf::Time elapsed)
         {
             _areaOfEffect.setRadius(_areaOfEffect.getRadius() + 2);
             _areaOfEffect.setOrigin(_areaOfEffect.getGlobalBounds().width / 2.0f,
-                _areaOfEffect.getGlobalBounds().height / 2.0f);
+									_areaOfEffect.getGlobalBounds().height / 2.0f);
 
-            b2CircleShape hitBox;
-            hitBox.m_radius = Utility::PixelToMeters(_areaOfEffect.getRadius());
+            _shape->m_radius = Utility::PixelToMeters(_areaOfEffect.getRadius());
 
-            _userData = new UserData(*this);
-            _userData->SetType(UserDataType::EXPLOSION);
+            std::cout << "radius = " << _shape->m_radius << std::endl;
 
-            createFixture(hitBox, 20.0f, 0.5f, 
-						  (uint16)UserDataType::EXPLOSION,
-						  (uint16)UserDataType::METEOR, 
-						  _userData, true);
         }
 
         else

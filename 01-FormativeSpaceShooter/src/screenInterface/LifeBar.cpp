@@ -7,15 +7,15 @@
 LifeBar::LifeBar(Player& player) : _player(player)
 {
     _damagedLifeBar = CreateAShape(sf::Vector2f((float)(2 * _player.GetMaxLife()), 20.0f),
-								   (float)Properties::WINDOW_WIDTH * 0.01f, 
-								   (float)Properties::WINDOW_HEIGHT * 0.02f, sf::Color::Red);
+								   Properties::WINDOW_WIDTH * 0.01f, 
+								   Properties::WINDOW_HEIGHT * 0.02f, sf::Color::Red);
 
     _damagedLifeBar.setOutlineThickness(2.0f);
     _damagedLifeBar.setOutlineColor(sf::Color::Black);
 
     _currentLifeBar = CreateAShape(sf::Vector2f((float)(2 * _player.GetMaxLife()), 20.0f),
-								    (float)Properties::WINDOW_WIDTH * 0.01f,
-								    (float)Properties::WINDOW_HEIGHT * 0.02f, Properties::GREEN);
+								    Properties::WINDOW_WIDTH * 0.01f,
+								    Properties::WINDOW_HEIGHT * 0.02f, Properties::GREEN);
 }
 
 void LifeBar::Update()

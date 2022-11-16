@@ -9,14 +9,13 @@ class Life : public DrawableObject
 {
 private:
 	Player& _player;
-	Game& _game;
 
 	bool _isLost = false;
 
 	sf::Time _duration;
 
 public:
-	Life(Player& player, Game& game);
+	Life(Player& player);
 
 	bool IsLost() { return _isLost; }
 	void SetToLost() { _isLost = true; }

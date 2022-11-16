@@ -11,9 +11,10 @@ protected:
 public:
 
 	void SetTextPosition(float x, float y) { _text.setPosition(x, y); }
-	void SetOriginToMiddle() { _text.setOrigin(_text.getGlobalBounds().width / 2.0f,
-																_text.getGlobalBounds().height / 2.0f); }
-	sf::FloatRect GetGlobalBounds() { return _text.getGlobalBounds(); }
+	void SetOriginToMiddle() { _text.setOrigin(_text.getLocalBounds().width / 2.0f,
+																_text.getLocalBounds().height / 2.0f); }
+
+	sf::FloatRect GetLocalBounds() { return _text.getLocalBounds(); }
 
 	void Init(std::string string, float x, float y, int charSize, sf::Color color);
 

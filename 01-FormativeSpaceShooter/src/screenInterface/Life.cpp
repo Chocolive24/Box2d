@@ -3,7 +3,7 @@
 #include "Game.h"
 #include "Player.h"
 
-Life::Life(Player& player, Game& game) : _player(player), _game(game)
+Life::Life(Player& player) : _player(player)
 {
     InitSprite("data/sprites/PNG/UI/playerLife1_red.png");
     _sprite.setOrigin(0,0);
@@ -17,13 +17,18 @@ void Life::Update(sf::Time elapsed, std::list<Life>& lives)
 
         if (_duration.asSeconds() >= 2)
         {
-            if (!_game.IsPlayerDead())
+            if (!_player.IsDead())
             {
                 lives.back().SetToLost();
                 _player.SetCurrentLifeToMax();
                 _duration = sf::Time::Zero;
             }
         }
+    }
+
+    if (lives.empty())
+    {
+        _player.SetToDead();
     }
 
     std::erase_if(lives, [](Life& life) { return life.IsLost(); });

@@ -129,7 +129,7 @@ int main()
         window.clear(sf::Color::Black);
 
         //window.draw(something to draw);
-        window.draw(box);
+        ////window.draw(box);
 
         // Window Display
         window.display();

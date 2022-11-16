@@ -40,6 +40,8 @@ private:
 
     int _maxLives = 3;
 
+    const float _rotationSpeed = 40.0f;
+
     bool _canMove = true;
     bool _canShoot = true;
     sf::Time _lastShotDuration;
@@ -55,7 +57,8 @@ public:
     // Moving methods.
 
     void Move(b2Vec2 force);
-    void Rotate(float omega);
+    void Rotate2(float radianPerSecond);
+    void Rotate(float degreesAngle);
 
     // -------------------------------------------------------------------------------------------
     // Attack methods.
@@ -82,6 +85,9 @@ public:
     // Getters and Setters.
 
     b2Body* GetBody() { return _body; }
+
+    sf::Vector2f GetFrontPosition() const;
+    float GetDeltaAngle(float angle);
 
     void SetLinearVelocity(b2Vec2 newVelocity) { _body->SetLinearVelocity(newVelocity); }
     void SetLinearDamping(float newDamping) { _body->SetLinearDamping(newDamping); }

@@ -5,7 +5,7 @@
 #include <box2d/b2_polygon_shape.h>
 #include <box2d/b2_world.h>
 #include "Player.h"
-#include <SFML/Graphics.hpp>
+
 
 
 #include "screenInterface/Button.h"
@@ -15,6 +15,7 @@
 #include <list>
 
 #include "Explosion.h"
+#include "WaveManager.h"
 #include "screenInterface/Animations.h"
 #include "screenInterface/BombUI.h"
 #include "screenInterface/Life.h"
@@ -23,6 +24,7 @@
 #include "screenInterface/Shop.h"
 #include "soundDesign/SoundManager.h"
 #include "screenInterface/Edge.h"
+#include "screenInterface/UIManager.h"
 
 class Game
 {
@@ -35,13 +37,13 @@ private:
 	ContactListener _contactListener;
 
 	Player _player;
-	LifeBar _lifeBar;
-	std::list<Life> _lives;
+	
+	
 	std::list<BombUI> _bombsUI;
 	BombUI _bombUIManager;
 	int _spaceWidth = 0;
 	bool _updateBombsUI = false;
-	Score _score;
+	
 
 	std::list<Meteor> _meteors;
 	std::list<Explosion> _explosions;
@@ -73,13 +75,20 @@ private:
 	Animations _animationManager;
 	SoundManager _soundManager;
 
+	WaveManager _waveManager;
+	UIManager _uiManager;
+
 public:
 
 	Game();
 
+	sf::RenderWindow& GetWindow() { return _window; }
+
 	b2World& GetWorld() { return _world; }
 	Player& GetPlayer() { return _player; }
-	Score& GetScore() { return _score; }
+
+	WaveManager& GetWaveManager() { return _waveManager; }
+	UIManager& GetUIManager() { return _uiManager; }
 	Animations& GetAnimationManager() { return _animationManager; }
 	sf::Time& GetElapsedTime() { return _elapsed; }
 

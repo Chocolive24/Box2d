@@ -21,6 +21,8 @@ protected:
 	UserData* _userData = nullptr;
 	bool _addedToGroupIndex = false;
 
+	b2Shape* _shape;
+
 	b2FixtureDef _fixtureDef;
 
 	sf::Time _totalElapsed;

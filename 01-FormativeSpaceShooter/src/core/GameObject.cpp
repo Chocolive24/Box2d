@@ -1,5 +1,8 @@
 #include <Box2D/b2_circle_shape.h>
 #include "core/GameObject.h"
+
+#include <iostream>
+
 #include "core/Properties.h"
 #include "core/Utility.h"
 
@@ -16,7 +19,7 @@ void GameObject::createBody(b2World& world, b2Vec2 startPosition, b2BodyType typ
 {
     b2BodyDef bodyDef;
 
-    bodyDef.fixedRotation = true;
+    bodyDef.fixedRotation = false;
     bodyDef.type = type;
     //_bodyDef.linearDamping = 1.5f;
 
@@ -70,7 +73,8 @@ void GameObject::createFixture(b2Shape& hitBox, float density, float restitution
     }
 
     _fixtureDef.userData.pointer = reinterpret_cast<std::uintptr_t>(userData);
-    _body->CreateFixture(&_fixtureDef);
+    _shape = _body->CreateFixture(&_fixtureDef)->GetShape();
+
 }
 
 // -----------------------------------------------------------------------------------------------------------------
@@ -86,6 +90,9 @@ void GameObject::update(sf::Time elapsed)
 
     // Set the position of the Graphic object
     _sprite.setPosition(graphicPosition);
+
+    float angle = _body->GetAngle();
+    _sprite.setRotation(1 * Utility::RadToDeg(angle));
 }
 
 // -----------------------------------------------------------------------------------------------------------------

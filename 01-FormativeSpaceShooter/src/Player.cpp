@@ -21,6 +21,7 @@ Player::Player(Game& game) : _game(game), _bombExplosion(_game)
         Properties::WINDOW_HEIGHT / 2.0f));
 
     createBody(_game.GetWorld(), _startPosition, b2_dynamicBody);
+    _body->SetAngularDamping(0.25f);
 
     // -----------------------------------------------------------------------------------------------------
     // Hit box Init.
@@ -36,9 +37,9 @@ Player::Player(Game& game) : _game(game), _bombExplosion(_game)
     // -----------------------------------------------------------------------------------------------------
     // Fixture Init.
 
-    createFixture(_hitBox, 5.0f, 0.5f, 
+    createFixture(_hitBox, 1.0f, 0.5f, 
 				  (uint16)UserDataType::PLAYER, 
-				  uint16(UserDataType::EDGE) | uint16(UserDataType::METEOR),
+				  uint16(UserDataType::EDGE) | uint16(UserDataType::METEOR) | (uint16)UserDataType::EXPLOSION,
 				  _userData, false);
 
     // -----------------------------------------------------------------------------------------------------
@@ -51,18 +52,25 @@ Player::Player(Game& game) : _game(game), _bombExplosion(_game)
 
 void Player::Move(b2Vec2 force)
 {
-    _body->SetLinearVelocity(_body->GetLinearVelocity() + force);
+	_body->SetLinearVelocity(_body->GetLinearVelocity() + force);
+
+    if (b2Abs(_body->GetLinearVelocity().Length()) < Properties::epsilonLinearVelocity) 
+    {
+        _body->SetLinearVelocity(b2Vec2_zero);
+    }
 }
+
 
 // -----------------------------------------------------------------------------------------------------------------
 
-void Player::Rotate(float omega)
+void Player::Rotate2(float radianPerSecond)
 {
-    _body->SetAngularVelocity(omega);
-    _body->ApplyTorque(omega, true);
-    _body->SetTransform(_body->GetPosition(), _body->GetAngle());
-    
-    _sprite.rotate(_body->GetAngle());
+    _body->SetAngularVelocity(radianPerSecond);
+
+    if (b2Abs(_body->GetAngularVelocity()) < Properties::epsilonLinearVelocity)
+    {
+        _body->SetAngularVelocity(0.0f);
+    }
 }
 
 // -----------------------------------------------------------------------------------------------------------------
@@ -72,31 +80,24 @@ void Player::Shoot(int level)
     b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
     float width = Utility::PixelToMeters(_sprite.getGlobalBounds().width);
 
-    if (level == 1)
-    {
-        AddLaserLvl1(width);
-    }
+    const float angle = Utility::RadToDeg(_body->GetAngle());
+    const b2Vec2 frontPosition = Utility::PixelsToMeters(GetFrontPosition());
+    const float spread = 20.0f / 2.0f;
 
-    if (level == 2)
+    for (int i = 0; i < level; i++)
     {
-        AddLaserLvl2(width);
-    }
+        float angleAfterSpread = angle - spread + 
+								(spread * 2.f * static_cast<float>(i) + spread) / static_cast<float>(level);
 
-    else if (level == 3)
-    {
-        AddLaserLvl3(width);
-    }
+        if (level == 1)
+        {
+            angleAfterSpread = angle;
+        }
 
-    else if (level == 4)
-    {
-        AddLaserLvl4(width);
-    }
+        _lasers.emplace_back(_game, frontPosition, angleAfterSpread);
 
-    else if (level == 5)
-    {
-        AddLaserLvl5(width);
+        // Shoot the projectile here with all information
     }
-
     _canShoot = false;
 }
 
@@ -124,6 +125,16 @@ void Player::update(sf::Time elapsed)
     // Update the player's sprite.
 
     GameObject::update(elapsed);
+
+    // Make the player rotate slowly to the mouse position angle
+    const auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(_game.GetWindow()));
+    const auto playerPosition = _sprite.getPosition();
+    const auto position = mousePosition - playerPosition;
+
+    // Get angle between two positions
+    const float angle = Utility::RadToDeg(atan2(position.y, position.x));
+
+    Rotate(angle);
 
     // -----------------------------------------------------------------------------------------------------
 	// Update the player's data.
@@ -193,73 +204,54 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 // -----------------------------------------------------------------------------------------------------------------
 
-void Player::AddLaserLvl1(float spriteWidth)
+sf::Vector2f Player::GetFrontPosition() const
 {
-    b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
-    _lasers.emplace_back(_game, startPos, _body->GetAngle());
-    _lasers.back().Move();
-    _lasers.back().SetAngle(_body->GetAngle());
+    const sf::Vector2f size(_sprite.getTexture()->getSize());
+    const sf::Vector2f scale = _sprite.getScale();
+    const sf::Vector2f position = _sprite.getPosition();
+    const float angle = _sprite.getRotation() + 90.f;
+
+    const float x = position.x - (size.x * scale.x / 2.f) * std::cos(Utility::DegToRad(angle));
+    const float y = position.y - (size.y * scale.y / 2.f) * std::sin(Utility::DegToRad(angle));
+
+    return { x, y };
+    
 }
 
 // -----------------------------------------------------------------------------------------------------------------
 
-void Player::AddLaserLvl2(float spriteWidth)
+float Player::GetDeltaAngle(float angle)
 {
-    for (int i = 0; i < 2; i++)
+    const float currentAngle = Utility::RadToDeg(_body->GetAngle());
+    float difference = angle - currentAngle;
+
+    while (difference < -180.f)
     {
-        b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
-        spriteWidth *= -1;
-        startPos.x += spriteWidth / 4.0f;
-        _lasers.emplace_back(_game, startPos, _body->GetAngle());
-        _lasers.back().Move();
+        difference += 360.f;
     }
-}
 
-// -----------------------------------------------------------------------------------------------------------------
-
-void Player::AddLaserLvl3(float spriteWidth)
-{
-    AddLaserLvl2(spriteWidth);
-    AddLaserLvl1(spriteWidth);
-}
-
-// -----------------------------------------------------------------------------------------------------------------
-
-void Player::AddLaserLvl4(float spriteWidth)
-{
-    for (int i = 1; i <= 4; i++)
+    while (difference > 180.f)
     {
-        b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
-
-        if (i < 3)
-        {
-            _lasers.emplace_back(_game, b2Vec2(startPos.x - i * spriteWidth / 5.0f, startPos.y),
-                _body->GetAngle());
-        }
-
-        else
-        {
-            _lasers.emplace_back(_game, b2Vec2(startPos.x + i / 2 * spriteWidth / 5.0f, startPos.y),
-                _body->GetAngle());
-        }
-
-        _lasers.back().Move();
+        difference -= 360.f;
     }
+
+    return difference + 90.f;
 }
 
-// -----------------------------------------------------------------------------------------------------------------
-
-void Player::AddLaserLvl5(float spriteWidth)
+void Player::Rotate(float degreesAngle) 
 {
-    b2Vec2 startPos(_body->GetPosition().x - spriteWidth / 2.0f, _body->GetPosition().y + 0.6f);
+    degreesAngle = GetDeltaAngle(degreesAngle);
 
-    for (int i = 0; i < 5; i++)
+    if (degreesAngle > _rotationSpeed)
     {
-        _lasers.emplace_back(_game, b2Vec2(startPos.x + i * spriteWidth / 4.0f, startPos.y),
-            _body->GetAngle());
-
-        _lasers.back().Move();
+        degreesAngle = _rotationSpeed;
     }
+    else if (degreesAngle < -_rotationSpeed)
+    {
+        degreesAngle = -_rotationSpeed;
+    }
+
+    _body->SetAngularVelocity(Utility::DegToRad(degreesAngle * 10.f)); // 10.f = magic number
 }
 
 // -----------------------------------------------------------------------------------------------------------------

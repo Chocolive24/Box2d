@@ -9,12 +9,12 @@
 Game::Game() :
     _gravity(0.0f, 0.0f),
     _world(_gravity),
-    _contactListener(*this),
     _player(*this),
-    _lifeBar(_player),
+	_uiManager(_waveManager, _player),
 	_bombUIManager(_player, *this),
 	_animationManager(_player),
-	_shop(_score)
+	_shop(_uiManager.GetScore()),
+    _contactListener(*this)
 
 {
     _world.SetContactListener(&_contactListener);
@@ -48,13 +48,7 @@ void Game::Init()
     _restartButton.Init(windowSize.x / 2.0f, windowSize.y / 2.0f, sf::Vector2f(400, 100),
         "RESTART", 60, "data/sprites/PNG/Keys/Space-Key.png");
 
-    for (int width = 0; width < _player.GetMaxLives(); width++)
-    {
-        _lives.emplace_back(_player, *this);
-
-        _lives.back().SetPosition(_lifeBar.GetPosition().x + _lives.back().GetLocalBounds().width * width * 1.2f,
-            _lifeBar.GetPosition().y + 2 * _lifeBar.GetLocalBounds().height);
-    }
+    
 
     AddBombsUI();
 }
@@ -96,9 +90,9 @@ void Game::AddBombsUI()
     {
         _bombsUI.emplace_front(_player, *this);
 
-        _bombsUI.front().SetPosition(_lifeBar.GetPosition().x +
-            _lives.front().GetLocalBounds().width * i * 1.2f - 3.0f,
-            _lifeBar.GetPosition().y + 3.5 * _lifeBar.GetLocalBounds().height);
+        _bombsUI.front().SetPosition(_uiManager._lifeBar.GetPosition().x +
+            _uiManager._lives.front().GetLocalBounds().width * i * 1.2f - 3.0f,
+            _uiManager._lifeBar.GetPosition().y + 4.5 * _uiManager._lifeBar.GetLocalBounds().height);
     }
 }
 
@@ -106,34 +100,24 @@ void Game::CheckInput()
 {
     if (_start && !_shopOpen)
     {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
         {
             _player.Move(b2Vec2(0.3f, 0));
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         {
             _player.Move(b2Vec2(-0.3f, 0));
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
         {
             _player.Move(b2Vec2(0, 0.3f));
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         {
             _player.Move(b2Vec2(0, -0.3f));
-        }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
-        {
-            _player.Rotate(-3.0f);
-        }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
-        {
-            _player.Rotate(3.0f);
         }
 
         if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) &&
@@ -209,8 +193,6 @@ void Game::CheckInput()
                             _player.SetBombNumber(1);
                             AddBombsUI();
                         }
-
-
                     }
 
                     else if (event.key.code == sf::Keyboard::Key::Num3)
@@ -245,40 +227,62 @@ void Game::UpdateGame(sf::Time elapsed)
             _totalElapsed = sf::Time::Zero;
         }
 
+        if (!_waveManager.IsRandomWaveSetUp())
+        {
+            _waveManager.SetARandomWave();
+
+            _waveManager.SetRandomWaveToSetUp();
+        }
+
+        if (_waveManager.GetTheRandomWave() == 1)
+        {
+            _waveManager.Update(WaveType::DESTROY_ENTITY, elapsed);
+
+            if (_waveManager.GetDestroyWave().IsFinished())
+            {
+                //_shopOpen = true;
+                _waveManager.GetDestroyWave().SetToUnFinished();
+                _waveManager.SetRandomWaveToNotSetUp();
+            }
+        }
+
+        else if (_waveManager.GetTheRandomWave() == 2)
+        {
+            _waveManager.Update(WaveType::SURVIVE, elapsed);
+
+            if (_waveManager.GetSurviveWave().IsFinished())
+            {
+                //_shopOpen = true;
+                _waveManager.GetSurviveWave().SetToUnFinished();
+                _waveManager.SetRandomWaveToNotSetUp();
+            }
+        }
+
+        _uiManager.Update(elapsed);
+
         // Updating the world with a delay
         float timeStep = 1.0f / 60.0f;
         int32 velocityIterations = 6;
         int32 positionIterations = 2;
         _world.Step(timeStep, velocityIterations, positionIterations);
 
-        _score.Update();
+        
 
         UpdateGameObjects(elapsed);
 
-        _lifeBar.Update();
-
-    	_lives.back().Update(elapsed, _lives);
-
         _bombUIManager.Update(elapsed, _bombsUI);
-
-        if (_lives.empty())
-        {
-            SetPlayerToDead();
-        }
-        
-        
     }
 
     if (_shopOpen)
     {
-        _score.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.25f);
         _shop.Update();
+        _uiManager.GetScore().SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.25f);
         _exitButton.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.90f);
     }
 
     else
     {
-        _score.SetPosition(Properties::WINDOW_WIDTH * 0.885f, Properties::WINDOW_HEIGHT * 0.02f);
+    	_uiManager.GetScore().SetPosition(Properties::WINDOW_WIDTH * 0.885f, Properties::WINDOW_HEIGHT * 0.02f);
         _exitButton.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.75f);
     }
     
@@ -306,8 +310,6 @@ void Game::UpdateGameObjects(sf::Time elapsed)
     {
         _animationManager.CollisionWithMeteorAnim(elapsed, _isPlayerCollidingMeteor);
     }
-
-    std::cout << _isPlayerCollidingMeteor << std::endl;
 }
 
 void Game::Render()
@@ -338,28 +340,18 @@ void Game::Render()
 		}*/
 
         _window.draw(_player);
-        
-        _window.draw(_lifeBar);
-
-        for (auto& life : _lives)
-        {
-            _window.draw(life);
-        }
 
         for (auto& bomb : _bombsUI)
         {
             _window.draw(bomb);
         }
 
-        _window.draw(_score);
+        _window.draw(_waveManager);
+        _window.draw(_uiManager);
     }
 
     if (_shopOpen)
     {
-        /*for (auto& backgroundSprite : _background)
-        {
-            _window.draw(backgroundSprite);
-        }*/
         _window.draw(_shop);
         _window.draw(_exitButton);
     }

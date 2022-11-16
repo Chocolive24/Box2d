@@ -18,7 +18,13 @@ Laser::Laser(Game& game, b2Vec2 playerPos, float angle) : _game(game)
     // Body Init.
 
     createBody(_game.GetWorld(), playerPos, b2_kinematicBody);
-    _body->SetTransform(playerPos, angle * 3.14f / 180.0f - 90);
+
+	_body->SetTransform(playerPos, Utility::DegToRad(angle));
+
+    _velocity = b2Vec2(0.0f, 10.0f);
+
+    b2Vec2 initialVelocity = _body->GetLocalVector(b2Vec2(0.0f, 10.0f));
+    _body->SetLinearVelocity(initialVelocity);
 
     // -----------------------------------------------------------------------------------------------------
     // Hit box Init.
@@ -37,10 +43,6 @@ Laser::Laser(Game& game, b2Vec2 playerPos, float angle) : _game(game)
     createFixture(_hitBox, 1.0f, 0.1f, 
 				  (uint16)_userData->GetType(),
 				  (uint16)UserDataType::METEOR, _userData, false);
-
-    // -----------------------------------------------------------------------------------------------------
-    // Velocity Init.
-    _velocity = b2Vec2(0.0f, 10.0f);
 
     // -----------------------------------------------------------------------------------------------------
 }

@@ -39,6 +39,7 @@ void Animations::CollisionWithMeteorAnim(sf::Time& elapsed, bool& isACollision)
 				255));
 			Properties::INVINCIBILITY_EFFECT = +(Properties::INVINCIBILITY_EFFECT);
 			isACollision = false;
+			_duration = sf::Time::Zero;
 		}
 	}
 }
