@@ -1,26 +1,35 @@
 #pragma once
+#include <SFML/Graphics.hpp>
+
 #include "Wave.h"
 
 enum class SurviveWaveType
 {
+	NONE,
+	CANT_MOVE = 2,
 	CANT_USE_WEAPON,
-	CANT_MOVE,
 	UNKNOWN
 };
 
 class SurviveWave : public Wave
 {
 private:
-	float _numOfSecToSurvive;
+	static float _numOfSecToSurvive;
+	static  float _maxNumOfSecToSurvive;
 	sf::Time _currentSecSurvivded;
 
 public:
-	SurviveWave();
+	SurviveWave(float secondToSurvive, WaveType type);
 
 	void Update(sf::Time elapsed);
 
-	std::string SurviveTypeToString (SurviveWaveType type);
+	std::string SurviveTypeToString (WaveType type);
 
-	float GetNumOfSecToSurvive() { return _numOfSecToSurvive; }
+	static float GetNumOfSecToSurvive() { return _numOfSecToSurvive; }
+	static float GetMaxNumOfSecToSurvive() { return _maxNumOfSecToSurvive; }
 	sf::Time GetCurrentSecSurvivded() { return _currentSecSurvivded; }
+
+	void update(sf::Time elapsed, Score& score) override;
+	std::string StateToString() override;
+	std::string WinConditionToString(WaveType type) override;
 };

@@ -1,40 +1,37 @@
 #pragma once
 #include "DestroyWave.h"
 #include "SurviveWave.h"
+#include "screenInterface/GameText.h"
 
-class WaveManager : public sf::Drawable
+class WaveManager
 {
 private:
-	DestroyWave _destroyWave;
-	SurviveWave _surviveWave;
+	Wave* _wave = nullptr;
 
-	int _waveNumber = 1;
+	Player& _player;
 
-	GameText _waveNumberText;
-	GameText _winConditionText;
-
-	bool _mustDisplayTitle = true;
-
-	sf::Time _titleDuration;
+	int _waveNumber = 0;
 
 	int _randomWave;
 
-	bool _isRandomWaveSetUp = false;
-
+	sf::Time _titleDuration;
+	bool _isTitleTimeDone = false;
 
 public:
-	WaveManager();
+	WaveManager(Player& player);
 
-	bool IsRandomWaveSetUp() { return _isRandomWaveSetUp; }
-	void SetRandomWaveToSetUp() { _isRandomWaveSetUp = true; }
-	void SetRandomWaveToNotSetUp() { _isRandomWaveSetUp = false; }
-	void SetARandomWave();
-	int GetTheRandomWave() { return  _randomWave; }
+	void StartARandomWave();
 
-	void Update(WaveType waveType, sf::Time elapsed);
-	void UpdateWaveNumberText();
-	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-	DestroyWave& GetDestroyWave() { return _destroyWave; }
-	SurviveWave& GetSurviveWave() { return _surviveWave; }
+	void Update(sf::Time elapsed, Score& score);
+
+	int GetRandomWaveNumber() { return _randomWave; }
+
+	int GetWaveNumber() { return _waveNumber; }
+	WaveType GetWaveType() { return  _wave->GetWaveType(); }
+	std::string GetWaveStateToString();
+	bool IsWaveFinished();
+	bool IsTitleTimeDone() { return _isTitleTimeDone; }
+	void IncreaseEntityDestroyed();
+	std::string GetWinConditionToString(WaveType type);
 };

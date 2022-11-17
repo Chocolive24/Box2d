@@ -14,12 +14,10 @@ class Game;
 
 ContactListener::ContactListener(Game& game) : _game(game)
 {
-
 }
 
 void ContactListener::BeginContact(b2Contact* contact)
 {
-	std::cout << "Begin contact" << std::endl;
 	// ---------------------------------------------------------------------------------------------------------
 	// Get the bodies of the collision.
 	b2Body* bodyA = contact->GetFixtureA()->GetBody();
@@ -58,7 +56,6 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* bomb = reinterpret_cast<UserData*>(bPointer);
 
-			std::cout << "OUI";
 			player->GetPlayer()->TakeDamage(100);
 			bomb->GetBomb()->SetToDestroyed();
 		}
@@ -81,7 +78,6 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* bomb = reinterpret_cast<UserData*>(aPointer);
 
-			//player->GetPlayer()->TakeDamage(100);
 			bomb->GetBomb()->SetToDestroyed();
 		}
 	}
@@ -96,11 +92,10 @@ void ContactListener::BeginContact(b2Contact* contact)
 		if (userDataB == UserDataType::METEOR)
 		{
 			auto* meteor = reinterpret_cast<UserData*>(bPointer);
-
 			laser->GetLaser()->SetToDestroyed();
 			meteor->GetMeteor()->SetToDestroyed();
 			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
-			_game.GetWaveManager().GetDestroyWave().IncreaseEntityDestroyed(1);
+			_game.GetWaveManager().IncreaseEntityDestroyed();
 		}
 
 		else if (userDataB == UserDataType::BOMB)
@@ -123,7 +118,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 			laser->GetLaser()->SetToDestroyed();
 			meteor->GetMeteor()->SetToDestroyed();
 			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
-			_game.GetWaveManager().GetDestroyWave().IncreaseEntityDestroyed(1);
+			_game.GetWaveManager().IncreaseEntityDestroyed();
 		}
 
 		else if (userDataA == UserDataType::BOMB)
@@ -132,7 +127,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			laser->GetLaser()->SetToDestroyed();
 			bomb->GetBomb()->SetToDestroyed();
-		}		
+		}
 	}
 
 	// ---------------------------------------------------------------------------------------------------------
@@ -148,6 +143,8 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			bomb->GetBomb()->SetToDestroyed();
 			meteor->GetMeteor()->SetToDestroyed();
+			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
+			_game.GetWaveManager().IncreaseEntityDestroyed();
 		}
 	}
 
@@ -161,6 +158,8 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			bomb->GetBomb()->SetToDestroyed();
 			meteor->GetMeteor()->SetToDestroyed();
+			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
+			_game.GetWaveManager().IncreaseEntityDestroyed();
 		}
 	}
 
@@ -184,7 +183,22 @@ void ContactListener::BeginContact(b2Contact* contact)
 			auto* explosion = reinterpret_cast<UserData*>(bPointer);
 
 			meteorA->GetMeteor()->SetToDestroyed();
-			explosion->GetExplosion()->SetToDestroyed();
+			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
+			_game.GetWaveManager().IncreaseEntityDestroyed();
+		}
+	}
+
+	else if (userDataB == UserDataType::METEOR)
+	{
+		auto* meteor = reinterpret_cast<UserData*>(bPointer);
+
+		if (userDataA == UserDataType::EXPLOSION)
+		{
+			auto* explosion = reinterpret_cast<UserData*>(aPointer);
+
+			meteor->GetMeteor()->SetToDestroyed();
+			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
+			_game.GetWaveManager().IncreaseEntityDestroyed();
 		}
 	}
 	// The other meteors collisions are already handled
@@ -192,8 +206,6 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 void ContactListener::EndContact(b2Contact* contact)
 {
-	std::cout << "end contact" << std::endl;
-
 	// ---------------------------------------------------------------------------------------------------------
 	// Get the bodies of the collision.
 	b2Body* bodyA = contact->GetFixtureA()->GetBody();
@@ -202,8 +214,8 @@ void ContactListener::EndContact(b2Contact* contact)
 	// ---------------------------------------------------------------------------------------------------------
 	// Get the group index of the bodies.
 
-	auto userDataA = static_cast<UserDataType>(bodyA->GetFixtureList()->GetFilterData().groupIndex);
-	auto userDataB = static_cast<UserDataType>(bodyB->GetFixtureList()->GetFilterData().groupIndex);
+	auto userDataA = static_cast<UserDataType>(bodyA->GetFixtureList()->GetFilterData().categoryBits);
+	auto userDataB = static_cast<UserDataType>(bodyB->GetFixtureList()->GetFilterData().categoryBits);
 
 	// ---------------------------------------------------------------------------------------------------------
 	// Get the pointers of the fixture.
@@ -212,33 +224,25 @@ void ContactListener::EndContact(b2Contact* contact)
 	auto bPointer = contact->GetFixtureB()->GetUserData().pointer;
 
 	// ---------------------------------------------------------------------------------------------------------
-	// Collision between the player and the other game objects.
+	// Collisions between the lasers and the other game objects.
 
-	// Case user data A = player.
-	if (userDataA == UserDataType::PLAYER)
+	if (userDataA == UserDataType::LASER)
 	{
-		auto* player = reinterpret_cast<UserData*>(aPointer);
+		auto* laser = reinterpret_cast<UserData*>(aPointer);
 
-		if (userDataB == UserDataType::EXPLOSION)
+		if (userDataB == UserDataType::EDGE)
 		{
-			auto* explosion = reinterpret_cast<UserData*>(bPointer);
-
-			player->GetPlayer()->TakeDamage(1);
-			explosion->GetExplosion()->SetToDestroyed();
+			laser->GetLaser()->SetToDestroyed();
 		}
-
 	}
 
-	if (userDataB == UserDataType::METEOR)
+	else if (userDataB == UserDataType::LASER)
 	{
-		auto* meteor = reinterpret_cast<UserData*>(bPointer);
+		auto* laser = reinterpret_cast<UserData*>(bPointer);
 
 		if (userDataA == UserDataType::EDGE)
 		{
-			auto* edge = reinterpret_cast<UserData*>(aPointer);
-
-			meteor->GetMeteor()->setIsSensor(true);
-			std::cout << "yo";
+			laser->GetLaser()->SetToDestroyed();
 		}
 	}
 }

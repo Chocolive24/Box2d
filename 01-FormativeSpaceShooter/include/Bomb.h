@@ -19,9 +19,11 @@ private:
 
 	b2Vec2 _velocity;
 
-	
+	Explosion _explosion;
 
 	bool _isDestroyed = false;
+	bool _isAnExplosion = false;
+	bool _hasExploded = false;
 
 	sf::Time _duration;
 
@@ -35,6 +37,7 @@ public:
 
 	b2Body* GetBody() { return _body; }
 	bool IsDestroyed() { return _isDestroyed; }
+	bool HasExploded() { return _hasExploded; }
 	void SetToDestroyed() { _isDestroyed = true; }
 
 	void Init(b2World& world, b2Vec2 playerPos);

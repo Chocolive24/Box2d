@@ -42,7 +42,9 @@ Laser::Laser(Game& game, b2Vec2 playerPos, float angle) : _game(game)
 
     createFixture(_hitBox, 1.0f, 0.1f, 
 				  (uint16)_userData->GetType(),
-				  (uint16)UserDataType::METEOR, _userData, false);
+				  (uint16)UserDataType::METEOR | (uint16)UserDataType::EDGE | 
+						  (uint16)UserDataType::BOMB,
+				  _userData, false);
 
     // -----------------------------------------------------------------------------------------------------
 }
@@ -52,7 +54,6 @@ Laser::Laser(Game& game, b2Vec2 playerPos, float angle) : _game(game)
 Laser::~Laser()
 {
     _game.GetWorld().DestroyBody(_body);
-    std::cout << _isDestroyed << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------------------------

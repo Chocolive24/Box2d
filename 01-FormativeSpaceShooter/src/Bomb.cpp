@@ -7,7 +7,7 @@
 #include "core/Properties.h"
 #include "core/Utility.h"
 
-Bomb::Bomb(Game& game, b2Vec2 playerPos) : _game(game)
+Bomb::Bomb(Game& game, b2Vec2 playerPos) : _game(game), _explosion(_game)
 {
     createSprite("data/sprites/PNG/Lasers/laserRed08.png");
 
@@ -18,7 +18,7 @@ Bomb::Bomb(Game& game, b2Vec2 playerPos) : _game(game)
 
     createFixture(hitBox, 2.0f, 0.5f, 
 				  (int16)_userData->GetType(),
-		          (uint16)UserDataType::METEOR,
+		          (uint16)UserDataType::METEOR | (uint16)UserDataType::LASER,
 		          _userData, false);
 
     _velocity = b2Vec2(0.0f, 1.5f);
@@ -27,12 +27,6 @@ Bomb::Bomb(Game& game, b2Vec2 playerPos) : _game(game)
 Bomb::~Bomb()
 {
     _game.GetWorld().DestroyBody(_body);
-}
-
-void Bomb::Init(b2World& world, b2Vec2 playerPos)
-{
-    // ---------------------------------------------------------------------------------------------------------
-    // Shape Init.
 }
 
 void Bomb::Move()
@@ -48,18 +42,36 @@ void Bomb::update(sf::Time elapsed)
 
     if (_duration.asSeconds() >= Properties::BOMB_COOLDOWN)
     {
-        SetToDestroyed();
+        _isDestroyed = true;
     }
 
-	if (_isDestroyed)
-	{
-        _body->SetLinearVelocity(b2Vec2(0, 0));
-	}
+    if (_isDestroyed && !_isAnExplosion)
+    {
+        _explosion.Init(_game, _body->GetPosition());
+        _isAnExplosion = true;
+    }
 
+    if (_isAnExplosion)
+    {
+        _explosion.update(elapsed);
+
+        if (_explosion.IsExplosionFinished())
+        {
+            _hasExploded = true;
+        }
+    }
 }
+
 
 void Bomb::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    GameObject::draw(target, states);
-}
+    if (!_isDestroyed)
+    {
+        GameObject::draw(target, states);
+    }
 
+    else
+    {
+        target.draw(_explosion);
+    }
+}

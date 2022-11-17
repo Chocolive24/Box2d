@@ -3,46 +3,69 @@
 #include <iostream>
 
 #include "core/Properties.h"
+#include "screenInterface/GameText.h"
 
-SurviveWave::SurviveWave() : Wave(WaveType::SURVIVE)
+float SurviveWave::_numOfSecToSurvive;
+float SurviveWave::_maxNumOfSecToSurvive = 30;
+
+SurviveWave::SurviveWave(float secondToSurvive, WaveType type) : Wave(type)
 {
-	_numOfSecToSurvive = 30.0f;
+	_numOfSecToSurvive = secondToSurvive;
 }
 
-void SurviveWave::Update(sf::Time elapsed)
+std::string SurviveWave::SurviveTypeToString(WaveType type)
 {
-	if (!_started)
+	
+	if (type == WaveType::CANT_MOVE)
 	{
-		_numOfSecToSurvive += 5;
-		_started = true;
+		return "YOU CAN'T MOVE";
 	}
-
+		
+	if (type == WaveType::CANT_USE_WEAPON) 
+	{
+		return "YOU CAN'T USE WEAPONS";
+	}
+		
 	else
 	{
-		_currentSecSurvivded += elapsed;
-
-		if (_currentSecSurvivded.asSeconds() >= _numOfSecToSurvive)
-		{
-			_isFinished = true;
-			_currentSecSurvivded = sf::Time::Zero;
-		}
-
-		if (_isFinished)
-		{
-			_started = false;
-		}
+		return "NONE";
 	}
 }
 
-std::string SurviveWave::SurviveTypeToString(SurviveWaveType type)
+void SurviveWave::update(sf::Time elapsed, Score& score)
 {
-	switch (type)
+	_currentSecSurvivded += elapsed;
+
+	if (_currentSecSurvivded.asSeconds() >= _numOfSecToSurvive)
 	{
-	case SurviveWaveType::CANT_USE_WEAPON:
-		return "YOU CAN'T USE WEAPONS";
-	case SurviveWaveType::CANT_MOVE:
-		return "YOU CAN'T MOVE";
-	case SurviveWaveType::UNKNOWN:
-		return "UNKNOWN";
+		_started = false;
 	}
+}
+
+std::string SurviveWave::StateToString()
+{
+	std::string string;
+
+	string += std::to_string(static_cast<int>(_currentSecSurvivded.asSeconds()));
+
+	string += " Sec";
+
+	string += " / ";
+
+	string += std::to_string(static_cast<int>(_numOfSecToSurvive));
+
+	string += " Sec";
+
+	return string;
+}
+
+std::string SurviveWave::WinConditionToString(WaveType type)
+{
+	std::string string;
+
+	string += "SURVIVE ";
+
+	string += SurviveTypeToString(type);
+
+	return string;
 }

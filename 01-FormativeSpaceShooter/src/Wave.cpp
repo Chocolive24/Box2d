@@ -1,9 +1,6 @@
 #include "Wave.h"
 
-#include "core/Properties.h"
-
-Wave::Wave(WaveType type)
+Wave::Wave(WaveType type) : _type(type)
 {
-	_type = type;
+	_started = true;
 }
-

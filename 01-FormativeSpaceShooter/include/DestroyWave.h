@@ -1,29 +1,41 @@
 #pragma once
 #include "Wave.h"
 #include "core/GameObject.h"
+#include "screenInterface/GameText.h"
 
 enum class EntityToDestroyType
 {
-	METEOR,
 	NONE,
+	METEOR,
+	
 };
 
 class DestroyWave : public Wave
 {
 private:
-	int _numOfEntityToDestroy;
+	EntityToDestroyType _type;
+
+	static int _numOfEntityToDestroy;
+	static int _maxNumOfEntityToDestroy;
 	int _currentEntityDestroyed = 0;
 
 	GameText _winConditionText;
 
 public:
-	DestroyWave();
+	
 
-	void Update();
+	DestroyWave(int numOfEntity, WaveType type);
 
-	std::string EntittyToDestroyToString(EntityToDestroyType type);
+	void update(sf::Time elapsed, Score& score) override;
 
-	void IncreaseEntityDestroyed(int num) { _currentEntityDestroyed += num; }
-	int GetNumOfEntityToDestroy()   { return _numOfEntityToDestroy; }
+	std::string EntittyToDestroyToString(WaveType type);
+
+	void IncreaseEntityDestroyed() { _currentEntityDestroyed++; }
+	EntityToDestroyType& GetEntityType() { return _type; }
+	static int GetNumOfEntityToDestroy() { return _numOfEntityToDestroy; }
+	static int GetMaxNumOfEntityToDestroy() { return _maxNumOfEntityToDestroy; }
 	int GetCurrentEntityDestroyed() { return _currentEntityDestroyed; }
+
+	std::string StateToString() override;
+	std::string WinConditionToString(WaveType type) override;
 };

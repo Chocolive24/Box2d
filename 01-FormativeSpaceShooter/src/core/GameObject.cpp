@@ -73,7 +73,7 @@ void GameObject::createFixture(b2Shape& hitBox, float density, float restitution
     }
 
     _fixtureDef.userData.pointer = reinterpret_cast<std::uintptr_t>(userData);
-    _shape = _body->CreateFixture(&_fixtureDef)->GetShape();
+    _fixture = _body->CreateFixture(&_fixtureDef);
 
 }
 

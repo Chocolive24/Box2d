@@ -9,9 +9,8 @@ class DestroyWaveUI : public sf::Drawable
 {
 private:
 
-	GameText _winConditionUI;
+	GameText _waveNumberText;
 
-	GameObject _entitiyToDestroyUI;
 
 public:
 	void Init (WaveManager& waveManager);

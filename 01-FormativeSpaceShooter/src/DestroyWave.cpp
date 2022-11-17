@@ -4,39 +4,55 @@
 
 #include "core/Properties.h"
 
-DestroyWave::DestroyWave() : Wave(WaveType::DESTROY_ENTITY)
+int DestroyWave::_numOfEntityToDestroy = 0;
+int DestroyWave::_maxNumOfEntityToDestroy = 100;
+
+DestroyWave::DestroyWave(int numOfEntity, WaveType type) : Wave(type)
 {
-	_numOfEntityToDestroy = 5;
+	_numOfEntityToDestroy = numOfEntity;
 }
 
-std::string DestroyWave::EntittyToDestroyToString(EntityToDestroyType type)
+void DestroyWave::update(sf::Time elapsed, Score& score)
 {
-	switch(type)
-	{
-	case EntityToDestroyType::METEOR:
-		return "METEORS";
-
-	case EntityToDestroyType::NONE:
-		return "UNKNOWN";
-	}
-}
-
-void DestroyWave::Update()
-{
-	if (!_started)
-	{
-		_numOfEntityToDestroy += 5;
-		_started = true;
-	}
-
 	if (_currentEntityDestroyed >= _numOfEntityToDestroy)
-	{
-		_isFinished = true;
-		_currentEntityDestroyed = 0;
-	}
-
-	if (_isFinished)
 	{
 		_started = false;
 	}
+}
+
+std::string DestroyWave::EntittyToDestroyToString(WaveType type)
+{
+	if (type == WaveType::DESTROY_METEOR)
+	{
+		return "METEOR";
+	}
+
+	else
+	{
+		return "NONE";
+	}
+}
+
+std::string DestroyWave::StateToString()
+{
+	std::string string;
+
+	string += std::to_string(_currentEntityDestroyed);
+
+	string += " / ";
+
+	string += std::to_string(_numOfEntityToDestroy);
+
+	return string;
+}
+
+std::string DestroyWave::WinConditionToString(WaveType type)
+{
+	std::string string;
+
+	string += "DESTROY ";
+
+	string += EntittyToDestroyToString(type);
+
+	return string;
 }

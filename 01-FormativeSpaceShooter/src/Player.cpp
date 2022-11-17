@@ -7,7 +7,7 @@
 
 // -----------------------------------------------------------------------------------------------------------------
 
-Player::Player(Game& game) : _game(game), _bombExplosion(_game)
+Player::Player(Game& game) : _game(game)
 {
     // -----------------------------------------------------------------------------------------------------
     // Sprite Init.
@@ -98,6 +98,7 @@ void Player::Shoot(int level)
 
         // Shoot the projectile here with all information
     }
+
     _canShoot = false;
 }
 
@@ -126,7 +127,7 @@ void Player::update(sf::Time elapsed)
 
     GameObject::update(elapsed);
 
-    // Make the player rotate slowly to the mouse position angle
+    // Make the player rotate to the mouse position angle.
     const auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(_game.GetWindow()));
     const auto playerPosition = _sprite.getPosition();
     const auto position = mousePosition - playerPosition;
@@ -155,31 +156,20 @@ void Player::update(sf::Time elapsed)
         _lastShotDuration = sf::Time::Zero;
     }
 
-    std::erase_if(_lasers, [](Laser& laser) { return laser.IsDestroyed(); });
-
     for (auto& laser : _lasers)
     {
         laser.CheckIfOutOfScreen();
         laser.update(elapsed);
     }
 
+    std::erase_if(_lasers, [](Laser& laser) { return laser.IsDestroyed(); });
+
     for (auto& bomb : _bombs)
     {
         bomb.update(elapsed);
-
-        if (bomb.IsDestroyed())
-        {
-            _bombExplosion.Init(_game, bomb.GetBody()->GetPosition());
-            _bombExplosion.CreateAnExplosion();
-        }
     }
 
-    if (_bombExplosion.IsAnExplosion())
-    {
-        _bombExplosion.update(elapsed);
-    }
-
-    std::erase_if(_bombs, [](Bomb& bomb) { return bomb.IsDestroyed(); });
+    std::erase_if(_bombs, [](Bomb& bomb) { return bomb.HasExploded(); });
 
     // -----------------------------------------------------------------------------------------------------
 }
@@ -198,8 +188,6 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         target.draw(bomb);
     }
-
-    target.draw(_bombExplosion);
 }
 
 // -----------------------------------------------------------------------------------------------------------------
@@ -215,7 +203,6 @@ sf::Vector2f Player::GetFrontPosition() const
     const float y = position.y - (size.y * scale.y / 2.f) * std::sin(Utility::DegToRad(angle));
 
     return { x, y };
-    
 }
 
 // -----------------------------------------------------------------------------------------------------------------

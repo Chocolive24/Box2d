@@ -1,12 +1,15 @@
 #pragma once
+#include <xstring>
+#include <SFML/Graphics.hpp>
 
-#include "core/DrawableObject.h"
-#include "screenInterface/GameText.h"
+#include "screenInterface/Score.h"
 
 enum class WaveType
 {
-	DESTROY_ENTITY,
-	SURVIVE
+	NONE,
+	DESTROY_METEOR,
+	CANT_MOVE,
+	CANT_USE_WEAPON
 };
 
 class Wave
@@ -15,14 +18,16 @@ protected:
 	WaveType _type;
 
 	bool _started = false;
-	bool _isPlaying = false;
-	bool _isFinished = false;
-
-	
 
 public:
 	Wave(WaveType type);
 
-	bool IsFinished() { return _isFinished; }
-	void SetToUnFinished() { _isFinished = false; }
+	virtual void update(sf::Time elapsed, Score& score) = 0;
+
+	bool IsStarted() { return _started; }
+	WaveType GetWaveType() { return _type; }
+
+
+	virtual std::string StateToString() = 0;
+	virtual std::string WinConditionToString(WaveType type) = 0;
 };

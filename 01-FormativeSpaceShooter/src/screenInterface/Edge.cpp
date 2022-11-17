@@ -19,9 +19,6 @@ Edge::Edge(Game& game, sf::Vector2f v1, sf::Vector2f v2) : _game(game)
     b2EdgeShape hitBox;
     hitBox.SetTwoSided(Utility::PixelsToMeters(v1), Utility::PixelsToMeters(v2));
 
-    std::cout << hitBox.m_vertex1.x << " " << hitBox.m_vertex1.y << std::endl;
-    std::cout << hitBox.m_vertex2.x << " " << hitBox.m_vertex2.y << std::endl;
-
     _fixtureDef.shape = &hitBox;
     _fixtureDef.density = 2.0f;
     _fixtureDef.friction = 0.0f;
@@ -32,7 +29,7 @@ Edge::Edge(Game& game, sf::Vector2f v1, sf::Vector2f v2) : _game(game)
     if (!_addedToGroupIndex)
     {
         _fixtureDef.filter.categoryBits = (uint16)UserDataType::EDGE;
-        _fixtureDef.filter.maskBits = (uint16)UserDataType::PLAYER;
+        _fixtureDef.filter.maskBits = (uint16)UserDataType::PLAYER | (uint16)UserDataType::LASER;
         _addedToGroupIndex = true;
     }
 

@@ -23,6 +23,8 @@ protected:
 
 	b2Shape* _shape;
 
+	b2Fixture* _fixture;
+
 	b2FixtureDef _fixtureDef;
 
 	sf::Time _totalElapsed;

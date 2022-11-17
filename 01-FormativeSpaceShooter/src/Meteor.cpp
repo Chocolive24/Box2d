@@ -114,11 +114,6 @@ b2Vec2 Meteor::InitRndPosAndVelocity()
         _velocity.x = Utility::GetRandomFloat(2.5f, 7.5f);
     }
 
-
-    // TODO les autres point cardinaux
-    // TODO rectangle shape red quand meteor detruit -> il grandit jusqu'à genre 50 pixels et fait des dégàts
-    // TODO same for bomb but with 200 pixels.
-
     b2Vec2 randomMeterPos(Utility::PixelsToMeters(randomPixelPos));
 
     return randomMeterPos;
@@ -139,7 +134,6 @@ void Meteor::update(sf::Time elapsed)
         _body->GetPosition().y < -(Utility::PixelToMeters(Properties::WINDOW_HEIGHT + 60)))
     {
         SetToDestroyed();
-        std::cout << "IL EST MORT" << std::endl;
     }
 }
 

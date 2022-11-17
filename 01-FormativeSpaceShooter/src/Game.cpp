@@ -10,6 +10,7 @@ Game::Game() :
     _gravity(0.0f, 0.0f),
     _world(_gravity),
     _player(*this),
+	_waveManager(_player),
 	_uiManager(_waveManager, _player),
 	_bombUIManager(_player, *this),
 	_animationManager(_player),
@@ -24,7 +25,8 @@ void Game::Init()
 {
     sf::Vector2f windowSize(Properties::WINDOW_WIDTH, Properties::WINDOW_HEIGHT);
 
-    _window.create(sf::VideoMode(windowSize.x, windowSize.y), "The Game");
+    _window.create(sf::VideoMode(windowSize.x, windowSize.y), "Space Shooter",
+        sf::Style::Fullscreen);
 
     _window.setVerticalSyncEnabled(true);
     _window.setFramerateLimit(120);
@@ -47,8 +49,6 @@ void Game::Init()
 
     _restartButton.Init(windowSize.x / 2.0f, windowSize.y / 2.0f, sf::Vector2f(400, 100),
         "RESTART", 60, "data/sprites/PNG/Keys/Space-Key.png");
-
-    
 
     AddBombsUI();
 }
@@ -100,33 +100,46 @@ void Game::CheckInput()
 {
     if (_start && !_shopOpen)
     {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        if (_waveManager.GetRandomWaveNumber() != (int)SurviveWaveType::CANT_MOVE)
         {
-            _player.Move(b2Vec2(0.3f, 0));
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+            {
+                _player.Move(b2Vec2(0.3f, 0));
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+            {
+                _player.Move(b2Vec2(-0.3f, 0));
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+            {
+                _player.Move(b2Vec2(0, 0.3f));
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+            {
+                _player.Move(b2Vec2(0, -0.3f));
+            }
+
+            if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) &&
+                !sf::Keyboard::isKeyPressed(sf::Keyboard::Left) &&
+                !sf::Keyboard::isKeyPressed(sf::Keyboard::Up) &&
+                !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+            {
+                _player.SetLinearDamping(1.5f);
+            }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            _player.Move(b2Vec2(-0.3f, 0));
+            if (_player.CanShoot())
+            {
+                _player.Shoot(_shop.GetLaserUpgrade().GetLevel());
+                _soundManager.PlayLaserSound();
+            }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        {
-            _player.Move(b2Vec2(0, 0.3f));
-        }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        {
-            _player.Move(b2Vec2(0, -0.3f));
-        }
-
-        if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) &&
-            !sf::Keyboard::isKeyPressed(sf::Keyboard::Left) &&
-            !sf::Keyboard::isKeyPressed(sf::Keyboard::Up) &&
-            !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-        {
-            _player.SetLinearDamping(1.5f);
-        }
     }
 
     sf::Event event;
@@ -139,6 +152,15 @@ void Game::CheckInput()
             _window.close();
         }
 
+        else if (event.type == sf::Event::MouseButtonPressed)
+        {
+            if (event.mouseButton.button == sf::Mouse::Left)
+            {
+                _player.Shoot(_shop.GetLaserUpgrade().GetLevel());
+                _soundManager.PlayLaserSound();
+            }
+        }
+
         else if (event.type == sf::Event::KeyReleased)
         {
             if (event.key.code == sf::Keyboard::Key::Space && !_shopOpen)
@@ -146,21 +168,13 @@ void Game::CheckInput()
                 if (!_start)
                 {
                     _start = true;
+                    _waveManager.StartARandomWave();
                 }
 
                 else if (_isPlayerDead)
                 {
                     Restart();
                     _isPlayerDead = false;
-                }
-
-                else
-                {
-                    if (_player.CanShoot())
-                    {
-                        _player.Shoot(_shop.GetLaserUpgrade().GetLevel());
-                        _soundManager.PlayLaserSound();
-                    }
                 }
             }
 
@@ -206,6 +220,7 @@ void Game::CheckInput()
                     else if (event.key.code == sf::Keyboard::Key::Escape && _shopOpen)
                     {
                         _shopOpen = false;
+                        _waveManager.StartARandomWave();
                     }
                 }
             }
@@ -219,54 +234,38 @@ void Game::UpdateGame(sf::Time elapsed)
     {
         _totalElapsed += elapsed;
 
-        if (_totalElapsed.asSeconds() >= Properties::METEOR_COOLDOWN)
+        if (_waveManager.GetWaveNumber() % 5 == 0 && _mustIncreaseMeteorNum)
         {
-            _meteors.emplace_back(*this);
-            _meteors.back().Move();
+            _numberOfMeteorPerSecond += 1;
+            _mustIncreaseMeteorNum = false;
+        }
+
+        else if (_waveManager.GetWaveNumber() % 5 != 0)
+        {
+            _mustIncreaseMeteorNum = true;
+        }
+
+        if (_totalElapsed.asSeconds() >= Properties::METEOR_COOLDOWN && _waveManager.IsTitleTimeDone())
+        {
+            for (int i = 0; i < _numberOfMeteorPerSecond; i++)
+            {
+                _meteors.emplace_back(*this);
+                _meteors.back().Move();
+            }
 
             _totalElapsed = sf::Time::Zero;
         }
 
-        if (!_waveManager.IsRandomWaveSetUp())
-        {
-            _waveManager.SetARandomWave();
+        _waveManager.Update(elapsed, _uiManager.GetScore());
+        _shopOpen = _waveManager.IsWaveFinished();
 
-            _waveManager.SetRandomWaveToSetUp();
-        }
-
-        if (_waveManager.GetTheRandomWave() == 1)
-        {
-            _waveManager.Update(WaveType::DESTROY_ENTITY, elapsed);
-
-            if (_waveManager.GetDestroyWave().IsFinished())
-            {
-                //_shopOpen = true;
-                _waveManager.GetDestroyWave().SetToUnFinished();
-                _waveManager.SetRandomWaveToNotSetUp();
-            }
-        }
-
-        else if (_waveManager.GetTheRandomWave() == 2)
-        {
-            _waveManager.Update(WaveType::SURVIVE, elapsed);
-
-            if (_waveManager.GetSurviveWave().IsFinished())
-            {
-                //_shopOpen = true;
-                _waveManager.GetSurviveWave().SetToUnFinished();
-                _waveManager.SetRandomWaveToNotSetUp();
-            }
-        }
-
-        _uiManager.Update(elapsed);
+        _uiManager.Update(elapsed, _waveManager.GetWaveType());
 
         // Updating the world with a delay
         float timeStep = 1.0f / 60.0f;
         int32 velocityIterations = 6;
         int32 positionIterations = 2;
         _world.Step(timeStep, velocityIterations, positionIterations);
-
-        
 
         UpdateGameObjects(elapsed);
 
@@ -278,6 +277,12 @@ void Game::UpdateGame(sf::Time elapsed)
         _shop.Update();
         _uiManager.GetScore().SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.25f);
         _exitButton.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.90f);
+
+        for (auto& meteor : _meteors)
+        {
+            meteor.SetToDestroyed();
+        }
+
     }
 
     else
@@ -334,11 +339,6 @@ void Game::Render()
             _window.draw(meteor);
         }
 
-		/*for (auto& explosion : _explosions)
-		{
-            _window.draw(explosion);
-		}*/
-
         _window.draw(_player);
 
         for (auto& bomb : _bombsUI)
@@ -346,7 +346,6 @@ void Game::Render()
             _window.draw(bomb);
         }
 
-        _window.draw(_waveManager);
         _window.draw(_uiManager);
     }
 

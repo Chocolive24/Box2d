@@ -17,7 +17,6 @@ enum class UserDataType
 	METEOR = 0x0008,
 	EDGE = 0x0010,
 	EXPLOSION = 0x0020,
-	
 };
 
 class UserData 

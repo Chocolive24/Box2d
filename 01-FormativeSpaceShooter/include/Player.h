@@ -27,7 +27,6 @@ private:
     std::list<Laser> _lasers;
     std::list<Bomb> _bombs;
     int _bombNbr = 1;
-    Explosion _bombExplosion;
     bool _isAnExplosion = false;
 
     // -------------------------------------------------------------------------------------------
@@ -104,6 +103,8 @@ public:
     int GetMaxLives() { return _maxLives; }
     bool CanShoot() { return _canShoot; }
     void SetCanShootToFalse() { _canShoot = false; }
+
+    void SetPosition(float x, float y) { _body->SetTransform(b2Vec2(x, y), 0.0f); }
 
     void SetCurrentLifeToMax() { _currentLife = _maxLife; }
     void TakeDamage(int damage) { _currentLife -= damage; }

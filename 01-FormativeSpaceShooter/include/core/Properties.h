@@ -6,8 +6,8 @@ class Properties
 public:
 	static constexpr float PIXEL_METER_RATIO = 100.0f;
 
-	static constexpr float WINDOW_WIDTH = 1500.0f;
-	static constexpr float WINDOW_HEIGHT = 900.0f;
+	static constexpr float WINDOW_WIDTH = 1920.f;
+	static constexpr float WINDOW_HEIGHT = 1080.f;
 
 	inline static sf::Vector2f LEFT_DOWN_CORNER = sf::Vector2f(0, WINDOW_HEIGHT);
 	inline static sf::Vector2f LEFT_UP_CORNER = sf::Vector2f(0, 0);
@@ -18,6 +18,7 @@ public:
 	inline static sf::Color DARK_GREEN = sf::Color(0, 50, 0);
 	inline static sf::Color RED = sf::Color(150, 0, 0);
 
+	inline static int INVINCIBILITY_EFFECT = 50;
 	static constexpr float maxAngularVelocity = 0.5;
 	static constexpr float epsilonAngularVelocity = 0.01f;
 	static constexpr float maxLinearVelocity = 10.0;
@@ -25,12 +26,12 @@ public:
 
 	static constexpr int METEOR_POINTS = 10;
 
-	static constexpr float LASER_COOLDOWN = 0.5f;
+	static constexpr float TITLE_WAVE_TIME = 2.0f;
+	static constexpr float LASER_COOLDOWN = 0.2f;
 	static constexpr float BOMB_COOLDOWN = 2.0f;
 	static constexpr float METEOR_COOLDOWN = 1.0f;
 
 	static constexpr float COLLI_WITH_METEOR_CD = 1.0f;
 
-	inline static int INVINCIBILITY_EFFECT = 50;
 	static constexpr float INVINCIBILITY_TIME = 3.0f;
 };

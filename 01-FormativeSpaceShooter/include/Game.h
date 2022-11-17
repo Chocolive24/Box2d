@@ -46,6 +46,8 @@ private:
 	
 
 	std::list<Meteor> _meteors;
+	int _numberOfMeteorPerSecond = 1;
+	bool _mustIncreaseMeteorNum = false;
 	std::list<Explosion> _explosions;
 
 	sf::Texture _backgroundTexture;

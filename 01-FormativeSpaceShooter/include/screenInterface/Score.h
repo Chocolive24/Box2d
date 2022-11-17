@@ -7,7 +7,7 @@ class Score : public GameText
 {
 private:
 
-	int _scorePoints = 100000;
+	int _scorePoints = 0;
 
 public:
 	Score();

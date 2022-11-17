@@ -17,19 +17,32 @@ public:
 	LifeBar _lifeBar;
 	std::list<Life> _lives;
 	Score _score;
+
 	WaveManager& _waveManager;
-	DestroyWaveUI _destroyWaveUI;
+
+	sf::Time _titleWaveDuration;
+
+	GameText _waveNumberText;
+	GameText _winConditionText;
+
+	GameText _waveStateText;
+	DrawableObject _entitiyIcon;
+	bool _loaded = false;
+
+	
 
 public:
 	UIManager(WaveManager& waveManager, Player& player);
 
 	void InitLives();
 
-
-	void Update(sf::Time elapsed);
+	void UpdateWaveNumberText();
+	
+	void Update(sf::Time elapsed, WaveType type);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 	std::list<Life>& GetLives() { return _lives; }
 	Score& GetScore() { return _score; }
+	GameText& GetWaveNumberText() { return _waveNumberText; }
 };
