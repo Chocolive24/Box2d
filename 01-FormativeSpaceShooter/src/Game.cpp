@@ -24,7 +24,8 @@ void Game::Init()
 {
     sf::Vector2f windowSize(Properties::WINDOW_WIDTH, Properties::WINDOW_HEIGHT);
 
-    _window.create(sf::VideoMode(windowSize.x, windowSize.y), "Space Shooter");
+    _window.create(sf::VideoMode(windowSize.x, windowSize.y), "Space Shooter",
+        sf::Style::Fullscreen);
 
     _window.setVerticalSyncEnabled(true);
     _window.setFramerateLimit(120);
