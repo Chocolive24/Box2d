@@ -12,6 +12,7 @@
 class UIManager : public sf::Drawable
 {
 public:
+	Game& _game;
 	Player& _player;
 
 	LifeBar _lifeBar;
@@ -28,17 +29,20 @@ public:
 
 	GameText _waveStateText;
 	DrawableObject _entitiyIcon;
+
+	GameText _exitText;
+
 	bool _loaded = false;
 
 public:
-	UIManager(WaveManager& waveManager, Player& player);
+	UIManager(Game& game, WaveManager& waveManager, Player& player);
 
 	void InitLives();
 
 	void UpdateBombsIcon();
 	void UpdateWaveNumberText();
 	
-	void Update(sf::Time elapsed, WaveType type);
+	void Update(sf::Time& elapsed, WaveType type);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 

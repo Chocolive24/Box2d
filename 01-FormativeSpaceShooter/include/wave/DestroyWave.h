@@ -26,7 +26,7 @@ public:
 
 	DestroyWave(int numOfEntity, WaveType type);
 
-	void update(sf::Time elapsed, Score& score) override;
+	void update(sf::Time& elapsed, Score& score) override;
 
 	std::string EntittyToDestroyToString(WaveType type);
 

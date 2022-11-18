@@ -36,13 +36,15 @@ private:
     int _currentLife;
     int _maxLife = 100;
 
-    int _maxLives = 1;
+    int _maxLives = 3;
 
     const float _rotationSpeed = 40.0f;
 
     bool _canBeControlled = true;
     bool _canShoot = true;
     sf::Time _lastShotDuration;
+    bool _canThrowBomb = true;
+    sf::Time _lastBombDuration;
 
     bool _isInvincible = false;
     sf::Time _invicibiltyDuration;
@@ -68,7 +70,7 @@ public:
     // -------------------------------------------------------------------------------------------
     // Graphical methods.
 
-    void update(sf::Time elapsed) override;
+    void update(sf::Time& elapsed) override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
     // -------------------------------------------------------------------------------------------
@@ -102,6 +104,7 @@ public:
 
     bool CanShoot() { return _canShoot; }
     void SetCanShootToFalse() { _canShoot = false; }
+    bool CanThrowBomb() { return _canThrowBomb; }
 
     std::list<Laser>& GetLasers() { return _lasers; }
     std::list<Bomb>& GetBombs() { return _bombs; }

@@ -14,4 +14,9 @@ Music::Music()
 	{
 		return;
 	}
+
+	if (!_titleTheme.openFromFile("data/sound/title_theme.wav"))
+	{
+		return;
+	}
 }

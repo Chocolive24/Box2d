@@ -79,7 +79,7 @@ void GameObject::createFixture(b2Shape& hitBox, float density, float restitution
 
 // -----------------------------------------------------------------------------------------------------------------
 
-void GameObject::update(sf::Time elapsed)
+void GameObject::update(sf::Time& elapsed)
 {
     //_totalElapsed += elapsed;
 

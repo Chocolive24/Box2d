@@ -35,7 +35,7 @@ public:
 	// Graphical methods.
 
 	void CheckIfOutOfScreen();
-	void update(sf::Time elapsed) override;
+	void update(sf::Time& elapsed) override;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 	// -------------------------------------------------------------------------------------------

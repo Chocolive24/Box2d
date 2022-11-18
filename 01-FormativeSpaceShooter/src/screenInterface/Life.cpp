@@ -9,7 +9,7 @@ Life::Life(Player& player) : _player(player)
     _sprite.setOrigin(0,0);
 }
 
-void Life::Update(sf::Time elapsed, std::list<Life>& lives)
+void Life::Update(sf::Time& elapsed, std::list<Life>& lives)
 {
     if (_player.GetCurrentLife() <= 0)
     {

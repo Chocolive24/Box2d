@@ -21,15 +21,13 @@ private:
 public:
 	SurviveWave(float secondToSurvive, WaveType type);
 
-	void Update(sf::Time elapsed);
-
 	std::string SurviveTypeToString (WaveType type);
 
 	static float GetNumOfSecToSurvive() { return _numOfSecToSurvive; }
 	static float GetMaxNumOfSecToSurvive() { return _maxNumOfSecToSurvive; }
 	sf::Time GetCurrentSecSurvivded() { return _currentSecSurvivded; }
 
-	void update(sf::Time elapsed, Score& score) override;
+	void update(sf::Time& elapsed, Score& score) override;
 	std::string StateToString() override;
 	std::string WinConditionToString(WaveType type) override;
 };

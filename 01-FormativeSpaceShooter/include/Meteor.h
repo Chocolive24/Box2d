@@ -16,15 +16,10 @@ private:
 
 	Game& _game;
 
-	sf::Sound _sound;
-	sf::SoundBuffer _buffer;
-
 	b2Vec2 _velocity;
-	MeteorExplosion _explosion;
 
 	bool _isDestroyed = false;
-	bool _isAnExplosion = false;
-	bool _hasExploded = false;
+	bool _canExplose = true;
 
 public:
 	Meteor(Game& game);
@@ -34,7 +29,7 @@ public:
 
 	void Move();
 
-	void update(sf::Time elapsed) override;
+	void update(sf::Time& elapsed) override;
 	bool CheckIfOutOfScreen();
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -42,6 +37,5 @@ public:
 	b2Body* GetBody() { return _body; }
 	bool IsDestroyed() { return _isDestroyed; }
 	void SetToDestroyed() { _isDestroyed = true; }
-	bool HasExploded() { return _hasExploded; }
-	void SetToHasExploded() { _hasExploded = true; }
+	bool CanExplose() { return _canExplose; }
 };

@@ -76,7 +76,7 @@ void Laser::Move()
 
 // -----------------------------------------------------------------------------------------------------------------
 
-void Laser::update(sf::Time elapsed)
+void Laser::update(sf::Time& elapsed)
 {
     GameObject::update(elapsed);
     CheckIfOutOfScreen();

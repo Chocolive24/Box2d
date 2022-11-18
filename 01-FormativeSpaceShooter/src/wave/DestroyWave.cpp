@@ -12,7 +12,7 @@ DestroyWave::DestroyWave(int numOfEntity, WaveType type) : Wave(type)
 	_numOfEntityToDestroy = numOfEntity;
 }
 
-void DestroyWave::update(sf::Time elapsed, Score& score)
+void DestroyWave::update(sf::Time& elapsed, Score& score)
 {
 	if (_currentEntityDestroyed >= _numOfEntityToDestroy)
 	{

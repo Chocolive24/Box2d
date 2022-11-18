@@ -30,6 +30,7 @@ public:
 	static constexpr float TITLE_WAVE_TIME = 2.0f;
 	static constexpr float LASER_COOLDOWN = 0.2f;
 	static constexpr float BOMB_COOLDOWN = 2.0f;
+	static constexpr float BOMB_THROW_CD = 4.0f;
 	static constexpr float METEOR_COOLDOWN = 1.0f;
 
 	static constexpr float COLLI_WITH_METEOR_CD = 1.0f;

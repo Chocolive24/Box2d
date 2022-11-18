@@ -12,7 +12,7 @@ WaveManager::WaveManager(Player& player) : _player(player)
 
 void WaveManager::StartARandomWave()
 {
-	_randomWave = Utility::GetRandomInt(1, 1);
+	_randomWave = Utility::GetRandomInt(1, 2);
 
 	_waveNumber++;
 
@@ -53,7 +53,7 @@ void WaveManager::StartARandomWave()
 	}
 }
 
-void WaveManager::Update(sf::Time elapsed, Score& score)
+void WaveManager::Update(sf::Time& elapsed, Score& score)
 {
 	_titleDuration += elapsed;
 

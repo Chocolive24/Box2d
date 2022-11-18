@@ -17,7 +17,7 @@ private:
 public:
 	Life(Player& player);
 
-	void Update(sf::Time elapsed, std::list<Life>& lives);
+	void Update(sf::Time& elapsed, std::list<Life>& lives);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 

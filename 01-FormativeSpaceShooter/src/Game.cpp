@@ -9,8 +9,9 @@ Game::Game() :
     _world(_gravity),
     _player(*this),
 	_menuManager(*this),
+	_meteorManager(*this),
 	_waveManager(_player),
-	_uiManager(_waveManager, _player),
+	_uiManager(*this, _waveManager, _player),
 	_animationManager(_player),
 	_shop(_uiManager.GetScore()),
     _contactListener(*this)
@@ -23,8 +24,7 @@ void Game::Init()
 {
     sf::Vector2f windowSize(Properties::WINDOW_WIDTH, Properties::WINDOW_HEIGHT);
 
-    _window.create(sf::VideoMode(windowSize.x, windowSize.y), "Space Shooter"
-        );
+    _window.create(sf::VideoMode(windowSize.x, windowSize.y), "Space Shooter");
 
     _window.setVerticalSyncEnabled(true);
     _window.setFramerateLimit(120);
@@ -35,6 +35,8 @@ void Game::Init()
     _edges.emplace_back(*this, Properties::LEFT_DOWN_CORNER, Properties::LEFT_UP_CORNER);
     _edges.emplace_back(*this, Properties::LEFT_UP_CORNER, Properties::RIGHT_UP_CORNER);
     _edges.emplace_back(*this, Properties::RIGHT_UP_CORNER, Properties::RIGHT_DOWN_CORNER);
+
+    _musicManager.PlayTitleTheme();
 }
 
 void Game::CheckInput()
@@ -43,7 +45,7 @@ void Game::CheckInput()
     CheckPollEvent();
 }
 
-void Game::UpdateGame(sf::Time elapsed)
+void Game::UpdateGame(sf::Time& elapsed)
 {
     if (_start && !_shopOpen)
     {
@@ -55,32 +57,10 @@ void Game::UpdateGame(sf::Time elapsed)
 
         _animationManager.Update(elapsed);
 
-        _totalElapsed += elapsed;
+        _meteorManager.Update(elapsed);
 
         if (!_player.IsDead())
         {
-            if (_waveManager.GetWaveNumber() % 3 == 0 && _mustIncreaseMeteorNum)
-            {
-                _numberOfMeteorPerSecond += 1;
-                _mustIncreaseMeteorNum = false;
-            }
-
-            else if (_waveManager.GetWaveNumber() % 3 != 0)
-            {
-                _mustIncreaseMeteorNum = true;
-            }
-
-            if (_totalElapsed.asSeconds() >= Properties::METEOR_COOLDOWN && _waveManager.IsTitleTimeDone())
-            {
-                for (int i = 0; i < _numberOfMeteorPerSecond; i++)
-                {
-                    _meteors.emplace_back(*this);
-                    _meteors.back().Move();
-                }
-
-                _totalElapsed = sf::Time::Zero;
-            }
-
             // Updating the world with a delay
             float timeStep = 1.0f / 60.0f;
             int32 velocityIterations = 6;
@@ -105,10 +85,8 @@ void Game::UpdateGame(sf::Time elapsed)
         _menuManager.GetExitButton().SetPosition(Properties::WINDOW_WIDTH / 2.0f, 
 												 Properties::WINDOW_HEIGHT * 0.90f);
 
-        for (auto& meteor : _meteors)
-        {
-            meteor.SetToHasExploded();
-        }
+        _meteorManager.GetMeteors().clear();
+        _meteorManager.GetMeteorExplosions().clear();
 
         for (auto& laser : _player.GetLasers())
         {
@@ -129,15 +107,8 @@ void Game::UpdateGame(sf::Time elapsed)
     }
 }
 
-void Game::UpdateGameObjects(sf::Time elapsed)
+void Game::UpdateGameObjects(sf::Time& elapsed)
 {
-    for (auto& meteor : _meteors)
-    {
-        meteor.update(elapsed);
-    }
-
-    std::erase_if(_meteors, [](Meteor& meteor) { return meteor.HasExploded(); });
-
     _player.update(elapsed);
 }
 
@@ -158,14 +129,10 @@ void Game::Render()
     if (_start && !_shopOpen)
     {
        if (!_player.IsDead())
-        {
-            for (auto& meteor : _meteors)
-            {
-                _window.draw(meteor);
-            }
-
-            _window.draw(_player);
-        }
+       {
+	        _window.draw(_meteorManager);
+	        _window.draw(_player);
+       }
 
         _window.draw(_uiManager);
     }
@@ -229,75 +196,82 @@ void Game::CheckPollEvent()
     while (_window.pollEvent(event))
     {
         if (event.type == sf::Event::Closed ||
-            (event.key.code == sf::Keyboard::Escape && !_shopOpen))
+            (event.key.code == sf::Keyboard::Escape && !_shopOpen && !_menuManager.ShowControls()))
         {
             _window.close();
         }
 
-        else if (event.type == sf::Event::MouseButtonPressed)
-        {
-            if (event.mouseButton.button == sf::Mouse::Left && _player.CanBeControlled())
-            {
-                _player.Shoot(_shop.GetLaserUpgrade().GetLevel());
-                _soundManager.PlayLaserSound();
-            }
-
-            if (event.mouseButton.button == sf::Mouse::Right && !_shopOpen && _player.GetBombNbr() > 0 &&
-                _player.CanBeControlled())
-            {
-                _player.ThrowBomb(_world);
-                _soundManager.PlayBombSound();
-            }
-        }
-
         else if (event.type == sf::Event::KeyReleased)
         {
-            if (event.key.code == sf::Keyboard::Key::Space && !_shopOpen)
+            if(!_start && !_shopOpen)
             {
-                if (!_start)
+                if (event.key.code == sf::Keyboard::Key::Num1 && !_menuManager.ShowControls())
                 {
                     _start = true;
+                    _musicManager.StopTitleTheme();
                     _musicManager.PlayMaintheme();
                     _waveManager.StartARandomWave();
                 }
-            }
 
-            if (_start)
-            {
-                if (!_shopOpen)
+                else if (event.key.code == sf::Keyboard::Key::Num2)
                 {
-                    if (event.key.code == sf::Keyboard::Key::Num1)
-                        _shopOpen = true;
+                	_menuManager.SetShowControls(true);
                 }
 
-                else
+                else if (event.key.code == sf::Keyboard::Key::Escape)
                 {
-                    if (event.key.code == sf::Keyboard::Key::Num1)
-                    {
-                        _shop.BuyAnUpgrade(_shop.GetLaserUpgrade());
-                    }
+                    _menuManager.SetShowControls(false);
+                }
+                
+            }
 
-                    else if (event.key.code == sf::Keyboard::Key::Num2)
-                    {
-                        if (_player.GetBombNbr() <= 5 && _shop.BuyAnUpgrade(_shop.GetBombUpgrade()))
-                        {
-                            _player.SetBombNumber(1);
-                        }
-                    }
+            if (_start && _shopOpen)
+            {
+                if (event.key.code == sf::Keyboard::Key::Num1)
+                {
+                    _shop.BuyAnUpgrade(_shop.GetLaserUpgrade());
+                }
 
-                    else if (event.key.code == sf::Keyboard::Key::Num3)
+                else if (event.key.code == sf::Keyboard::Key::Num2)
+                {
+                    if (_player.GetBombNbr() <= 5 && _shop.BuyAnUpgrade(_shop.GetBombUpgrade()))
                     {
-                        if (_shop.BuyAnUpgrade(_shop.GetHpUpgrade()))
-                        {
-                            _player.SetNewLife(20);
-                        }
+                        _player.SetBombNumber(1);
                     }
+                }
 
-                    else if (event.key.code == sf::Keyboard::Key::Escape && _shopOpen)
+                else if (event.key.code == sf::Keyboard::Key::Num3)
+                {
+                    if (_shop.BuyAnUpgrade(_shop.GetHpUpgrade()))
                     {
-                        _shopOpen = false;
-                        _waveManager.StartARandomWave();
+                        _player.SetNewLife(20);
                     }
+                }
+
+                else if (event.key.code == sf::Keyboard::Key::Escape)
+                {
+                    _shopOpen = false;
+                    _waveManager.StartARandomWave();
+                }
+            }
+        }
+
+        else if (event.type == sf::Event::MouseButtonPressed)
+        {
+
+            if (_start && !_shopOpen)
+            {
+                if (event.mouseButton.button == sf::Mouse::Left && _player.CanBeControlled())
+                {
+                    _player.Shoot(_shop.GetLaserUpgrade().GetLevel());
+                    _soundManager.PlayLaserSound();
+                }
+
+                if (event.mouseButton.button == sf::Mouse::Right && !_shopOpen && _player.GetBombNbr() > 0 &&
+                    _player.CanBeControlled() && _player.CanThrowBomb())
+                {
+                    _player.ThrowBomb(_world);
+                    _soundManager.PlayBombSound();
                 }
             }
         }

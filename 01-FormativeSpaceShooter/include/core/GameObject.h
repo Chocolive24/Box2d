@@ -41,7 +41,7 @@ protected:
 	// ---------------------------------------------------------------------------------------------------
 	// Methods related to the game loop.
 
-	virtual void update(sf::Time elapsed);
+	virtual void update(sf::Time& elapsed);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 

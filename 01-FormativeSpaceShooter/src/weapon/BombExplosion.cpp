@@ -36,17 +36,15 @@ void BombExplosion::Init(b2Vec2 startPosition)
 		_userData, true);
 }
 
-void BombExplosion::update(sf::Time elapsed)
+void BombExplosion::update(sf::Time& elapsed)
 {
 	GameObject::update(elapsed);
 
 	_sprite.scale(1.01f, 1.01f);
 	
-	_areaOfEffect.setRadius(_areaOfEffect.getRadius() + 6);
+	_areaOfEffect.setRadius(_areaOfEffect.getRadius() + 8);
 	_areaOfEffect.setOrigin(_areaOfEffect.getGlobalBounds().width / 2.0f,
 		_areaOfEffect.getGlobalBounds().height / 2.0f);
-
-	_body->DestroyFixture(_fixture);
 
 	b2CircleShape hitBox;
 	hitBox.m_radius = Utility::PixelToMeters(_areaOfEffect.getRadius());

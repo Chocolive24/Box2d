@@ -22,7 +22,7 @@ public:
 
 	void Init(b2Vec2 startPosition);
 
-	void update(sf::Time elapsed) override;
+	void update(sf::Time& elapsed) override;
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

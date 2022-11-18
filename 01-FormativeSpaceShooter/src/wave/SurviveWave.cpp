@@ -15,7 +15,6 @@ SurviveWave::SurviveWave(float secondToSurvive, WaveType type) : Wave(type)
 
 std::string SurviveWave::SurviveTypeToString(WaveType type)
 {
-	
 	if (type == WaveType::CANT_MOVE)
 	{
 		return "YOU CAN'T MOVE";
@@ -32,7 +31,7 @@ std::string SurviveWave::SurviveTypeToString(WaveType type)
 	}
 }
 
-void SurviveWave::update(sf::Time elapsed, Score& score)
+void SurviveWave::update(sf::Time& elapsed, Score& score)
 {
 	_currentSecSurvivded += elapsed;
 

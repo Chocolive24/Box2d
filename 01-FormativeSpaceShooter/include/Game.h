@@ -18,6 +18,7 @@
 #include "screenInterface/Menu.h"
 #include "screenInterface/UIManager.h"
 #include "soundDesign/Music.h"
+#include "MeteorManager.h"
 
 class Game
 {
@@ -31,9 +32,7 @@ private:
 
 	Player _player;
 
-	std::list<Meteor> _meteors;
-	int _numberOfMeteorPerSecond = 1;
-	bool _mustIncreaseMeteorNum = false;
+	MetorManager _meteorManager;
 
 	sf::Texture _backgroundTexture;
 	sf::Sprite _backgroundSprite;
@@ -47,7 +46,6 @@ private:
 	bool _start = false;
 
 	sf::Clock _clock;
-	sf::Time _totalElapsed;
 	sf::Time _elapsed;
 
 	Menu _menuManager;
@@ -67,8 +65,8 @@ public:
 	void CheckKeyPressed();
 	void CheckPollEvent();
 
-	void UpdateGame(sf::Time elapsed);
-	void UpdateGameObjects(sf::Time elapsed);
+	void UpdateGame(sf::Time& elapsed);
+	void UpdateGameObjects(sf::Time& elapsed);
 
 	void Render();
 

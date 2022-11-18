@@ -2,10 +2,12 @@
 
 #include <iostream>
 
+#include "Game.h"
 #include "core/Properties.h"
 #include "screenInterface/Life.h"
 
-UIManager::UIManager(WaveManager& waveManager, Player& player) :
+UIManager::UIManager(Game& game, WaveManager& waveManager, Player& player) :
+    _game(game),
 	_player(player),
 	_lifeBar(_player),
     _waveManager(waveManager)
@@ -23,6 +25,9 @@ UIManager::UIManager(WaveManager& waveManager, Player& player) :
     _waveStateText.Init("not started",
 				        Properties::WINDOW_WIDTH / 2.0f,
 				        Properties::WINDOW_HEIGHT * 0.036f, 50, Properties::GREEN);
+
+    _exitText.Init("PRESS ESCAPE TO EXIT", Properties::WINDOW_WIDTH / 2.0f,
+        Properties::WINDOW_HEIGHT * 0.95f, 30, Properties::GREEN);
 }
 
 void UIManager::InitLives()
@@ -36,7 +41,7 @@ void UIManager::InitLives()
     }
 }
 
-void UIManager::Update(sf::Time elapsed, WaveType type)
+void UIManager::Update(sf::Time& elapsed, WaveType type)
 {
     if (!_player.IsDead())
     {
@@ -88,7 +93,7 @@ void UIManager::Update(sf::Time elapsed, WaveType type)
     {
 	    _waveReached.Init("YOU REACHED WAVE " + std::to_string(_waveManager.GetWaveNumber()),
             Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT / 5.0f,
-            60, sf::Color::Red);
+            40, sf::Color::Red);
 
         _score.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT / 4.0f);
     }
@@ -120,7 +125,6 @@ void UIManager::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     if (!_player.IsDead())
     {
-
         target.draw(_lifeBar);
 
         for (auto& life : _lives)
@@ -153,5 +157,10 @@ void UIManager::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         target.draw(_waveReached);
         target.draw(_score);
+    }
+
+    if (_game.IsStarted() && !_game.IsShopOpen() && !_player.IsDead())
+    {
+        target.draw(_exitText);
     }
 }

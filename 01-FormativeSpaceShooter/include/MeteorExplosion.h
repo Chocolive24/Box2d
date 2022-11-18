@@ -11,10 +11,12 @@ private:
 	bool _isExplosionFinished = false;
 
 public:
-	void Init(sf::Vector2f startPosition);
+	MeteorExplosion(sf::Vector2f startPosition);
 
-	void Update(sf::Time elapsed);
+	void Update(sf::Time& elapsed);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
 	bool IsExplosionFinished() { return _isExplosionFinished; }
+	void SetExplosionToFinished() { _isExplosionFinished = true; }
 };

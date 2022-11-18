@@ -1,12 +1,12 @@
 #include "MeteorExplosion.h"
 
-void MeteorExplosion::Init(sf::Vector2f startPosition)
+MeteorExplosion::MeteorExplosion(sf::Vector2f startPosition)
 {
 	InitSprite("data/sprites/PNG/Effects/regularExplosion01.png");
 	_sprite.setPosition(startPosition);
 }
 
-void MeteorExplosion::Update(sf::Time elapsed)
+void MeteorExplosion::Update(sf::Time& elapsed)
 {
 	_sprite.scale(1.01f, 1.01f);
 

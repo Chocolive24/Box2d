@@ -19,7 +19,7 @@ public:
 
 	void PlayDamageAnimation(sf::Time elapsed);
 
-	void Update(sf::Time elapsed);
+	void Update(sf::Time& elapsed);
 
 	void CanPlayAnimation(bool canPlay) { _playAnimation = canPlay; }
 };

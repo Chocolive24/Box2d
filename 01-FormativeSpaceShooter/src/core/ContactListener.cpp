@@ -58,14 +58,6 @@ void ContactListener::BeginContact(b2Contact* contact)
 			meteor->GetMeteor()->SetToDestroyed();
 			_game.GetSoundManager().PlayExplosionSound();
 		}
-
-		else if (userDataB == UserDataType::BOMB)
-		{
-			auto* bomb = reinterpret_cast<UserData*>(bPointer);
-
-			player->GetPlayer()->TakeDamage(100);
-			bomb->GetBomb()->SetToDestroyed();
-		}
 	}
 
 	// Case user data B = player.
@@ -87,13 +79,6 @@ void ContactListener::BeginContact(b2Contact* contact)
 
 			meteor->GetMeteor()->SetToDestroyed();
 			_game.GetSoundManager().PlayExplosionSound();
-		}
-
-		else if (userDataA == UserDataType::BOMB)
-		{
-			auto* bomb = reinterpret_cast<UserData*>(aPointer);
-
-			bomb->GetBomb()->SetToDestroyed();
 		}
 	}
 
@@ -221,7 +206,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* explosion = reinterpret_cast<UserData*>(bPointer);
 
-			meteorA->GetMeteor()->SetToHasExploded();
+			meteorA->GetMeteor()->SetToDestroyed();
 			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
 			_game.GetWaveManager().IncreaseEntityDestroyed();
 			_game.GetSoundManager().PlayExplosionSound();
@@ -236,7 +221,7 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* explosion = reinterpret_cast<UserData*>(aPointer);
 
-			meteor->GetMeteor()->SetToHasExploded();
+			meteor->GetMeteor()->SetToDestroyed();
 			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
 			_game.GetWaveManager().IncreaseEntityDestroyed();
 			_game.GetSoundManager().PlayExplosionSound();

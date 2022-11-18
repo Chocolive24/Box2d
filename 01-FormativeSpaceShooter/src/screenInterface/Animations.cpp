@@ -36,7 +36,7 @@ void Animations::PlayDamageAnimation(sf::Time elapsed)
 		_player.SetControl(true);
 	}
 
-	if (_totalDuration.asSeconds() >= Properties::INVINCIBILITY_TIME - 0.1f)
+	if (_totalDuration.asSeconds() >= Properties::INVINCIBILITY_TIME - 0.2f)
 	{
 		_player.GetSprite().setColor(sf::Color(255, 255, 255, 255));
 		Properties::INVINCIBILITY_EFFECT = +Properties::INVINCIBILITY_EFFECT;
@@ -48,7 +48,7 @@ void Animations::PlayDamageAnimation(sf::Time elapsed)
 	}
 }
 
-void Animations::Update(sf::Time elapsed)
+void Animations::Update(sf::Time& elapsed)
 {
 	if (_player.IsInvincible())
 	{

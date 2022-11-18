@@ -21,7 +21,7 @@ Meteor::Meteor(Game& game) : _game(game)
     createFixture(hitBox, 2.0f, 0.5f,
 				  (uint16)UserDataType::METEOR,
 				  (uint16)UserDataType::METEOR | (uint16)UserDataType::PLAYER |
-				  (uint16)UserDataType::LASER | (uint16)UserDataType::BOMB | (uint16)UserDataType::EXPLOSION,
+				  (uint16)UserDataType::LASER | (uint16)UserDataType::EXPLOSION | (uint16)UserDataType::BOMB,
 				  _userData, false);
 }
 
@@ -124,29 +124,14 @@ void Meteor::Move()
     _body->SetLinearVelocity(_velocity);
 }
 
-void Meteor::update(sf::Time elapsed)
+void Meteor::update(sf::Time& elapsed)
 {
     GameObject::update(elapsed);
 
-    if (_isDestroyed && !_isAnExplosion)
-    {
-        _explosion.Init(Utility::MetersToPixels(_body->GetPosition()));
-        _isAnExplosion = true;
-    }
-
-    if (_isAnExplosion)
-    {
-        _explosion.Update(elapsed);
-
-        if (_explosion.IsExplosionFinished())
-        {
-            _hasExploded = true;
-        }
-    }
-
     if (CheckIfOutOfScreen())
     {
-        _hasExploded = true;
+        _isDestroyed = true;
+        _canExplose = false;
     }
 }
 
@@ -169,10 +154,4 @@ void Meteor::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         GameObject::draw(target, states);
     }
-
-    else
-    {
-        target.draw(_explosion);
-    }
-    
 }

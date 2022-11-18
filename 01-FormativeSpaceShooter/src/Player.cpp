@@ -105,11 +105,13 @@ void Player::ThrowBomb(b2World& world)
 
         _bombNbr -= 1;
     }
+
+    _canThrowBomb = false;
 }
 
 // -----------------------------------------------------------------------------------------------------------------
 
-void Player::update(sf::Time elapsed)
+void Player::update(sf::Time& elapsed)
 {
     // -----------------------------------------------------------------------------------------------------
     // Update the player's sprite.
@@ -141,11 +143,18 @@ void Player::update(sf::Time elapsed)
     // Update the player's attacks.
 
     _lastShotDuration += elapsed;
+    _lastBombDuration += elapsed;
 
     if (_lastShotDuration.asSeconds() >= Properties::LASER_COOLDOWN)
     {
         _canShoot = true;
         _lastShotDuration = sf::Time::Zero;
+    }
+
+    if (_lastBombDuration.asSeconds() >= Properties::BOMB_THROW_CD)
+    {
+        _canThrowBomb = true;
+        _lastBombDuration = sf::Time::Zero;
     }
 
     if (IsInvincible())

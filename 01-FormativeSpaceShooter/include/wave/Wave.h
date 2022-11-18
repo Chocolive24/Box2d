@@ -22,7 +22,7 @@ protected:
 public:
 	Wave(WaveType type);
 
-	virtual void update(sf::Time elapsed, Score& score) = 0;
+	virtual void update(sf::Time& elapsed, Score& score) = 0;
 
 	bool IsStarted() { return _started; }
 	WaveType GetWaveType() { return _type; }

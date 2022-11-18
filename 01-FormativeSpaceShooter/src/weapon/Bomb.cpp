@@ -11,7 +11,7 @@ Bomb::Bomb(Game& game, b2Vec2 playerPos, float angle) : _game(game), _explosion(
 {
     createSprite("data/sprites/PNG/Lasers/laserRed08.png");
 
-    createBody(_game.GetWorld(), playerPos, b2_kinematicBody);
+    createBody(_game.GetWorld(), playerPos, b2_dynamicBody);
 
     _body->SetTransform(playerPos, Utility::DegToRad(angle));
 
@@ -26,7 +26,7 @@ Bomb::Bomb(Game& game, b2Vec2 playerPos, float angle) : _game(game), _explosion(
 
     createFixture(hitBox, 2.0f, 0.5f, 
 				  (int16)_userData->GetType(),
-		          (uint16)UserDataType::METEOR | (uint16)UserDataType::LASER,
+		          (uint16)UserDataType::LASER | (uint16)UserDataType::METEOR,
 		          _userData, false);
 }
 
@@ -35,7 +35,7 @@ Bomb::~Bomb()
     _game.GetWorld().DestroyBody(_body);
 }
 
-void Bomb::update(sf::Time elapsed)
+void Bomb::update(sf::Time& elapsed)
 {
     GameObject::update(elapsed);
 

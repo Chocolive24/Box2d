@@ -23,7 +23,7 @@ public:
 	void StartARandomWave();
 
 
-	void Update(sf::Time elapsed, Score& score);
+	void Update(sf::Time& elapsed, Score& score);
 
 	int GetRandomWaveNumber() { return _randomWave; }
 

@@ -48,7 +48,7 @@ public:
 
 	void PlaySound() { _sound.play(); }
 
-	void update(sf::Time elpased) override;
+	void update(sf::Time& elpased) override;
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
