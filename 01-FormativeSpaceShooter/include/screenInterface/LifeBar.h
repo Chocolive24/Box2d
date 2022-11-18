@@ -16,10 +16,10 @@ private:
 public:
 	LifeBar(Player& player);
 
-	sf::Vector2f GetPosition() { return _damagedLifeBar.getPosition(); }
-	sf::FloatRect GetLocalBounds() { return _damagedLifeBar.getLocalBounds(); }
-
 	void Update();
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+	sf::Vector2f GetPosition() { return _damagedLifeBar.getPosition(); }
+	sf::FloatRect GetLocalBounds() { return _damagedLifeBar.getLocalBounds(); }
 };

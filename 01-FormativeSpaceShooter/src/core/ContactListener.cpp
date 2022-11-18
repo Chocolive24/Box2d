@@ -47,9 +47,16 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* meteor = reinterpret_cast<UserData*>(bPointer);
 
-			player->GetPlayer()->TakeDamage(20);
+			if (!player->GetPlayer()->IsInvincible())
+			{
+				player->GetPlayer()->TakeDamage(Properties::METEOR_DAMAGE);
+				player->GetPlayer()->SetInvincibility(true);
+				_game.GetAnimationManager().CanPlayAnimation(true);
+				_game.GetSoundManager().PlayDamageSound();
+			}
+			
 			meteor->GetMeteor()->SetToDestroyed();
-			//_game.SetPlayerToCollidingMeteor();
+			_game.GetSoundManager().PlayExplosionSound();
 		}
 
 		else if (userDataB == UserDataType::BOMB)
@@ -70,8 +77,16 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* meteor = reinterpret_cast<UserData*>(aPointer);
 
-			player->GetPlayer()->TakeDamage(20);
+			if (!player->GetPlayer()->IsInvincible())
+			{
+				player->GetPlayer()->TakeDamage(Properties::METEOR_DAMAGE);
+				player->GetPlayer()->SetInvincibility(true);
+				_game.GetAnimationManager().CanPlayAnimation(true);
+				_game.GetSoundManager().PlayDamageSound();
+			}
+
 			meteor->GetMeteor()->SetToDestroyed();
+			_game.GetSoundManager().PlayExplosionSound();
 		}
 
 		else if (userDataA == UserDataType::BOMB)
@@ -92,10 +107,17 @@ void ContactListener::BeginContact(b2Contact* contact)
 		if (userDataB == UserDataType::METEOR)
 		{
 			auto* meteor = reinterpret_cast<UserData*>(bPointer);
+
+			if (!meteor->GetMeteor()->IsDestroyed())
+			{
+				_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
+				_game.GetWaveManager().IncreaseEntityDestroyed();
+			}
+
+			
 			laser->GetLaser()->SetToDestroyed();
 			meteor->GetMeteor()->SetToDestroyed();
-			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
-			_game.GetWaveManager().IncreaseEntityDestroyed();
+			_game.GetSoundManager().PlayExplosionSound();
 		}
 
 		else if (userDataB == UserDataType::BOMB)
@@ -115,10 +137,15 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* meteor = reinterpret_cast<UserData*>(aPointer);
 
+			if (!meteor->GetMeteor()->IsDestroyed())
+			{
+				_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
+				_game.GetWaveManager().IncreaseEntityDestroyed();
+			}
+
 			laser->GetLaser()->SetToDestroyed();
 			meteor->GetMeteor()->SetToDestroyed();
-			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
-			_game.GetWaveManager().IncreaseEntityDestroyed();
+			_game.GetSoundManager().PlayExplosionSound();
 		}
 
 		else if (userDataA == UserDataType::BOMB)
@@ -146,6 +173,10 @@ void ContactListener::BeginContact(b2Contact* contact)
 			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
 			_game.GetWaveManager().IncreaseEntityDestroyed();
 		}
+
+		_game.GetSoundManager().PlayExplosionSound();
+		_game.GetSoundManager().StopBombSound();
+		_game.GetSoundManager().PlayBombExplosionSound();
 	}
 
 	else if (userDataB == UserDataType::BOMB)
@@ -161,6 +192,10 @@ void ContactListener::BeginContact(b2Contact* contact)
 			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
 			_game.GetWaveManager().IncreaseEntityDestroyed();
 		}
+
+		_game.GetSoundManager().PlayExplosionSound();
+		_game.GetSoundManager().StopBombSound();
+		_game.GetSoundManager().PlayBombExplosionSound();
 	}
 
 	// ---------------------------------------------------------------------------------------------------------
@@ -174,17 +209,22 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* meteorB = reinterpret_cast<UserData*>(bPointer);
 
-			meteorA->GetMeteor()->SetToDestroyed();
-			meteorB->GetMeteor()->SetToDestroyed();
+			if (!meteorA->GetMeteor()->CheckIfOutOfScreen() && !meteorB->GetMeteor()->CheckIfOutOfScreen())
+			{
+				meteorA->GetMeteor()->SetToDestroyed();
+				meteorB->GetMeteor()->SetToDestroyed();
+				_game.GetSoundManager().PlayExplosionSound();
+			}
 		}
 
 		else if (userDataB == UserDataType::EXPLOSION)
 		{
 			auto* explosion = reinterpret_cast<UserData*>(bPointer);
 
-			meteorA->GetMeteor()->SetToDestroyed();
+			meteorA->GetMeteor()->SetToHasExploded();
 			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
 			_game.GetWaveManager().IncreaseEntityDestroyed();
+			_game.GetSoundManager().PlayExplosionSound();
 		}
 	}
 
@@ -196,9 +236,10 @@ void ContactListener::BeginContact(b2Contact* contact)
 		{
 			auto* explosion = reinterpret_cast<UserData*>(aPointer);
 
-			meteor->GetMeteor()->SetToDestroyed();
+			meteor->GetMeteor()->SetToHasExploded();
 			_game.GetUIManager().GetScore().IncreaseScore(Properties::METEOR_POINTS);
 			_game.GetWaveManager().IncreaseEntityDestroyed();
+			_game.GetSoundManager().PlayExplosionSound();
 		}
 	}
 	// The other meteors collisions are already handled

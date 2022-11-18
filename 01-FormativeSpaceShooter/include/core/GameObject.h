@@ -10,7 +10,6 @@
 
 // Class that creates the game's main objects.
 // All game objects has physical attributes and a sprite.
-
 class GameObject : public DrawableObject
 {
 protected:
@@ -26,8 +25,6 @@ protected:
 	b2Fixture* _fixture;
 
 	b2FixtureDef _fixtureDef;
-
-	sf::Time _totalElapsed;
 
 	// ---------------------------------------------------------------------------------------------------
 	// Methods to create the sprite, the body and the fixture.

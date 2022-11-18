@@ -16,7 +16,7 @@ void ExplosionManager::update()
 	auto exploRemIt = std::remove_if(
 		m_explosions.begin(),
 		m_explosions.end(),
-		[](std::unique_ptr<Explosion>& m) {return m->getIsDead(); });
+		[](std::unique_ptr<BombExplosion>& m) {return m->getIsDead(); });
 
 	m_explosions.erase(exploRemIt, m_explosions.end());
 
@@ -27,6 +27,6 @@ void ExplosionManager::update()
 
 void ExplosionManager::AddExplosion(sf::Vector startPos_)
 {
-	m_explosions.emplace_back(std::make_unique<Explosion>(startPos_));
+	m_explosions.emplace_back(std::make_unique<BombExplosion>(startPos_));
 }
 

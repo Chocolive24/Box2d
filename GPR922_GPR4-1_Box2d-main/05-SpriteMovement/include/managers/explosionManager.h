@@ -6,13 +6,13 @@
 
 #include "core/SFML_Utilities.h"
 
-#include "explosion.h"
-#include "managers/soundManager.h"
+#include "BombExplosion.h"
+#include "managers/Sound.h"
 
 class ExplosionManager : public sf::Drawable {
 
 private:
-	std::vector<std::unique_ptr<Explosion>> m_explosions;
+	std::vector<std::unique_ptr<BombExplosion>> m_explosions;
 	b2World& m_world;
 
 public:

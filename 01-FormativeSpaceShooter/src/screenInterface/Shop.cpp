@@ -72,14 +72,24 @@ void Shop::Update()
 {
 	_score.Update();
 
-	_laserUpgrade.SetCost(_laserUpgrade.GetCost());
-	_laserUpgrade.UpdateCostText(std::to_string(_laserUpgrade.GetCost()));
+	UpdateUpgrade(_laserUpgrade);
+	UpdateUpgrade(_bombUpgrade);
+	UpdateUpgrade(_hpUpgrade);
+}
 
-	_bombUpgrade.SetCost(_bombUpgrade.GetCost());
-	_bombUpgrade.UpdateCostText(std::to_string(_bombUpgrade.GetCost()));
+void Shop::UpdateUpgrade(Upgrade& upgrade)
+{
+	if (upgrade.GetLevel() < upgrade.GetMaxLevel())
+	{
+		upgrade.SetCost(upgrade.GetCost());
+		upgrade.UpdateCostText(std::to_string(upgrade.GetCost()));
+	}
 
-	_hpUpgrade.SetCost(_hpUpgrade.GetCost());
-	_hpUpgrade.UpdateCostText(std::to_string(_hpUpgrade.GetCost()));
+	else
+	{
+		upgrade.UpdateCostText("MAX");
+	}
+	
 }
 
 void Shop::draw(sf::RenderTarget& target, sf::RenderStates states) const

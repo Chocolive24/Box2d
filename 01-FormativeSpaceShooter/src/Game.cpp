@@ -1,8 +1,6 @@
 #include "Game.h"
 
 #include <iostream>
-
-
 #include "core/Utility.h"
 #include "core/Properties.h"
 
@@ -10,9 +8,9 @@ Game::Game() :
     _gravity(0.0f, 0.0f),
     _world(_gravity),
     _player(*this),
+	_menuManager(*this),
 	_waveManager(_player),
 	_uiManager(_waveManager, _player),
-	_bombUIManager(_player, *this),
 	_animationManager(_player),
 	_shop(_uiManager.GetScore()),
     _contactListener(*this)
@@ -25,8 +23,8 @@ void Game::Init()
 {
     sf::Vector2f windowSize(Properties::WINDOW_WIDTH, Properties::WINDOW_HEIGHT);
 
-    _window.create(sf::VideoMode(windowSize.x, windowSize.y), "Space Shooter",
-        sf::Style::Fullscreen);
+    _window.create(sf::VideoMode(windowSize.x, windowSize.y), "Space Shooter"
+        );
 
     _window.setVerticalSyncEnabled(true);
     _window.setFramerateLimit(120);
@@ -37,70 +35,152 @@ void Game::Init()
     _edges.emplace_back(*this, Properties::LEFT_DOWN_CORNER, Properties::LEFT_UP_CORNER);
     _edges.emplace_back(*this, Properties::LEFT_UP_CORNER, Properties::RIGHT_UP_CORNER);
     _edges.emplace_back(*this, Properties::RIGHT_UP_CORNER, Properties::RIGHT_DOWN_CORNER);
-
-
-    _startButton.Init(windowSize.x / 2.0f, windowSize.y / 4.0f, sf::Vector2f(300, 100),
-					  "START", 60,"data/sprites/PNG/Keys/Space-Key.png");
-    _exitButton.Init(windowSize.x / 2.0f, windowSize.y * 0.75, sf::Vector2f(300, 100),
-        "EXIT", 60, "data/sprites/PNG/Keys/Esc-Key.png");
-
-    _gameOverButton.InitShape(windowSize.x / 2.0f, windowSize.y / 4.0f, sf::Vector2f(500, 100));
-    _gameOverButton.InitText("GAME OVER", 60);
-
-    _restartButton.Init(windowSize.x / 2.0f, windowSize.y / 2.0f, sf::Vector2f(400, 100),
-        "RESTART", 60, "data/sprites/PNG/Keys/Space-Key.png");
-
-    AddBombsUI();
-}
-
-void Game::CreateBackground()
-{
-    if (!_backgroundTexture.loadFromFile("data/sprites/Backgrounds/blue.png"))
-    {
-        return; // error 
-    }
-
-    _backgroundSprite.setTexture(_backgroundTexture);
-    float factorX = _window.getSize().x / _backgroundSprite.getGlobalBounds().width;
-    float factorY = _window.getSize().y / _backgroundSprite.getGlobalBounds().height;
-
-    for (int width = 0; width < factorX; width++)
-    {
-        for (int height = 0; height < factorY; height++)
-        {
-            sf::Sprite sprite;
-            sprite.setTexture(_backgroundTexture);
-            sprite.setPosition(sprite.getLocalBounds().width * width,
-                sprite.getLocalBounds().height * height);
-            _background.emplace_back(sprite);
-        }
-    }
-}
-
-void Game::AddMeteors()
-{
-    _meteors.emplace_back(*this);
-}
-
-void Game::AddBombsUI()
-{
-    _bombsUI.clear();
-
-    for (int i = 0; i < _player.GetBombNbr(); i++)
-    {
-        _bombsUI.emplace_front(_player, *this);
-
-        _bombsUI.front().SetPosition(_uiManager._lifeBar.GetPosition().x +
-            _uiManager._lives.front().GetLocalBounds().width * i * 1.2f - 3.0f,
-            _uiManager._lifeBar.GetPosition().y + 4.5 * _uiManager._lifeBar.GetLocalBounds().height);
-    }
 }
 
 void Game::CheckInput()
 {
+    CheckKeyPressed();
+    CheckPollEvent();
+}
+
+void Game::UpdateGame(sf::Time elapsed)
+{
     if (_start && !_shopOpen)
     {
-        if (_waveManager.GetRandomWaveNumber() != (int)SurviveWaveType::CANT_MOVE)
+        _waveManager.Update(elapsed, _uiManager.GetScore());
+
+        _shopOpen = _waveManager.IsWaveFinished();
+
+        _uiManager.Update(elapsed, _waveManager.GetWaveType());
+
+        _animationManager.Update(elapsed);
+
+        _totalElapsed += elapsed;
+
+        if (!_player.IsDead())
+        {
+            if (_waveManager.GetWaveNumber() % 3 == 0 && _mustIncreaseMeteorNum)
+            {
+                _numberOfMeteorPerSecond += 1;
+                _mustIncreaseMeteorNum = false;
+            }
+
+            else if (_waveManager.GetWaveNumber() % 3 != 0)
+            {
+                _mustIncreaseMeteorNum = true;
+            }
+
+            if (_totalElapsed.asSeconds() >= Properties::METEOR_COOLDOWN && _waveManager.IsTitleTimeDone())
+            {
+                for (int i = 0; i < _numberOfMeteorPerSecond; i++)
+                {
+                    _meteors.emplace_back(*this);
+                    _meteors.back().Move();
+                }
+
+                _totalElapsed = sf::Time::Zero;
+            }
+
+            // Updating the world with a delay
+            float timeStep = 1.0f / 60.0f;
+            int32 velocityIterations = 6;
+            int32 positionIterations = 2;
+            _world.Step(timeStep, velocityIterations, positionIterations);
+
+            UpdateGameObjects(elapsed);
+
+            if (GetUIManager().GetLives().empty())
+            {
+                _player.SetToDead();
+                _musicManager.StopMainTheme();
+                _musicManager.PlayGameOverMusic();
+            }
+        }
+    }
+
+    if (_shopOpen && !_player.IsDead())
+    {
+        _shop.Update();
+        _uiManager.GetScore().SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.25f);
+        _menuManager.GetExitButton().SetPosition(Properties::WINDOW_WIDTH / 2.0f, 
+												 Properties::WINDOW_HEIGHT * 0.90f);
+
+        for (auto& meteor : _meteors)
+        {
+            meteor.SetToHasExploded();
+        }
+
+        for (auto& laser : _player.GetLasers())
+        {
+            laser.SetToDestroyed();
+        }
+
+        for (auto& bomb : _player.GetBombs())
+        {
+            bomb.SetToHasExploded();
+        }
+    }
+
+    else if (!_shopOpen && !_player.IsDead())
+    {
+        _uiManager.GetScore().SetPosition(Properties::WINDOW_WIDTH * 0.885f, Properties::WINDOW_HEIGHT * 0.02f);
+        _menuManager.GetExitButton().SetPosition(Properties::WINDOW_WIDTH / 2.0f, 
+												 Properties::WINDOW_HEIGHT * 0.75f);
+    }
+}
+
+void Game::UpdateGameObjects(sf::Time elapsed)
+{
+    for (auto& meteor : _meteors)
+    {
+        meteor.update(elapsed);
+    }
+
+    std::erase_if(_meteors, [](Meteor& meteor) { return meteor.HasExploded(); });
+
+    _player.update(elapsed);
+}
+
+void Game::Render()
+{
+    _window.clear(sf::Color::Black);
+    
+    for (auto& backgroundSprite : _background)
+    {
+        _window.draw(backgroundSprite);
+    }
+
+    if (_shopOpen)
+    {
+        _window.draw(_shop);
+    }
+
+    if (_start && !_shopOpen)
+    {
+       if (!_player.IsDead())
+        {
+            for (auto& meteor : _meteors)
+            {
+                _window.draw(meteor);
+            }
+
+            _window.draw(_player);
+        }
+
+        _window.draw(_uiManager);
+    }
+
+    _window.draw(_menuManager);
+
+    _window.display();
+}
+
+void Game::CheckKeyPressed()
+{
+    if (_start && !_shopOpen)
+    {
+        if (_waveManager.GetRandomWaveNumber() != (int)SurviveWaveType::CANT_MOVE &&
+            _player.CanBeControlled())
         {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
             {
@@ -131,7 +211,7 @@ void Game::CheckInput()
             }
         }
 
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && _player.CanBeControlled())
         {
             if (_player.CanShoot())
             {
@@ -139,25 +219,34 @@ void Game::CheckInput()
                 _soundManager.PlayLaserSound();
             }
         }
-
     }
+}
 
+void Game::CheckPollEvent()
+{
     sf::Event event;
 
     while (_window.pollEvent(event))
     {
         if (event.type == sf::Event::Closed ||
-            (event.key.code == sf::Keyboard::Escape && !_start))
+            (event.key.code == sf::Keyboard::Escape && !_shopOpen))
         {
             _window.close();
         }
 
         else if (event.type == sf::Event::MouseButtonPressed)
         {
-            if (event.mouseButton.button == sf::Mouse::Left)
+            if (event.mouseButton.button == sf::Mouse::Left && _player.CanBeControlled())
             {
                 _player.Shoot(_shop.GetLaserUpgrade().GetLevel());
                 _soundManager.PlayLaserSound();
+            }
+
+            if (event.mouseButton.button == sf::Mouse::Right && !_shopOpen && _player.GetBombNbr() > 0 &&
+                _player.CanBeControlled())
+            {
+                _player.ThrowBomb(_world);
+                _soundManager.PlayBombSound();
             }
         }
 
@@ -168,21 +257,9 @@ void Game::CheckInput()
                 if (!_start)
                 {
                     _start = true;
+                    _musicManager.PlayMaintheme();
                     _waveManager.StartARandomWave();
                 }
-
-                else if (_isPlayerDead)
-                {
-                    Restart();
-                    _isPlayerDead = false;
-                }
-            }
-
-            if (event.key.code == sf::Keyboard::Key::Q && !_shopOpen && _player.GetBombNbr() > 0)
-            {
-                _player.ThrowBomb(_world);
-                _bombsUI.front().SetToUsed();
-                _soundManager.PlayBombSound();
             }
 
             if (_start)
@@ -205,7 +282,6 @@ void Game::CheckInput()
                         if (_player.GetBombNbr() <= 5 && _shop.BuyAnUpgrade(_shop.GetBombUpgrade()))
                         {
                             _player.SetBombNumber(1);
-                            AddBombsUI();
                         }
                     }
 
@@ -228,148 +304,6 @@ void Game::CheckInput()
     }
 }
 
-void Game::UpdateGame(sf::Time elapsed)
-{
-    if (_start && !_shopOpen && !_isPlayerDead)
-    {
-        _totalElapsed += elapsed;
-
-        if (_waveManager.GetWaveNumber() % 5 == 0 && _mustIncreaseMeteorNum)
-        {
-            _numberOfMeteorPerSecond += 1;
-            _mustIncreaseMeteorNum = false;
-        }
-
-        else if (_waveManager.GetWaveNumber() % 5 != 0)
-        {
-            _mustIncreaseMeteorNum = true;
-        }
-
-        if (_totalElapsed.asSeconds() >= Properties::METEOR_COOLDOWN && _waveManager.IsTitleTimeDone())
-        {
-            for (int i = 0; i < _numberOfMeteorPerSecond; i++)
-            {
-                _meteors.emplace_back(*this);
-                _meteors.back().Move();
-            }
-
-            _totalElapsed = sf::Time::Zero;
-        }
-
-        _waveManager.Update(elapsed, _uiManager.GetScore());
-        _shopOpen = _waveManager.IsWaveFinished();
-
-        _uiManager.Update(elapsed, _waveManager.GetWaveType());
-
-        // Updating the world with a delay
-        float timeStep = 1.0f / 60.0f;
-        int32 velocityIterations = 6;
-        int32 positionIterations = 2;
-        _world.Step(timeStep, velocityIterations, positionIterations);
-
-        UpdateGameObjects(elapsed);
-
-        _bombUIManager.Update(elapsed, _bombsUI);
-    }
-
-    if (_shopOpen)
-    {
-        _shop.Update();
-        _uiManager.GetScore().SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.25f);
-        _exitButton.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.90f);
-
-        for (auto& meteor : _meteors)
-        {
-            meteor.SetToDestroyed();
-        }
-
-    }
-
-    else
-    {
-    	_uiManager.GetScore().SetPosition(Properties::WINDOW_WIDTH * 0.885f, Properties::WINDOW_HEIGHT * 0.02f);
-        _exitButton.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT * 0.75f);
-    }
-    
-}
-
-void Game::UpdateGameObjects(sf::Time elapsed)
-{
-    for (auto& meteor : _meteors)
-    {
-        meteor.update(elapsed);
-
-        /*if (meteor.IsDestroyed())
-        {
-            _explosions.emplace_back(*this, meteor.GetBody()->GetPosition());
-            _explosions.back().update(elapsed);
-            _soundManager.PlayExplosionSound();
-        }*/
-    }
-
-    std::erase_if(_meteors, [](Meteor& meteor) { return meteor.IsDestroyed(); });
-
-    _player.update(elapsed);
-
-    if (_isPlayerCollidingMeteor)
-    {
-        _animationManager.CollisionWithMeteorAnim(elapsed, _isPlayerCollidingMeteor);
-    }
-}
-
-void Game::Render()
-{
-    _window.clear(sf::Color::Black);
-    
-    for (auto& backgroundSprite : _background)
-    {
-        _window.draw(backgroundSprite);
-    }
-
-    if (!_start)
-    {
-        _window.draw(_startButton);
-        _window.draw(_exitButton);
-    }
-
-    if (_start && !_shopOpen && !_isPlayerDead)
-    {
-        for (auto& meteor : _meteors)
-        {
-            _window.draw(meteor);
-        }
-
-        _window.draw(_player);
-
-        for (auto& bomb : _bombsUI)
-        {
-            _window.draw(bomb);
-        }
-
-        _window.draw(_uiManager);
-    }
-
-    if (_shopOpen)
-    {
-        _window.draw(_shop);
-        _window.draw(_exitButton);
-    }
-
-    if (_isPlayerDead)
-    {
-        _window.draw(_gameOverButton);
-        _window.draw(_restartButton);
-        _window.draw(_exitButton);
-    }
-
-    _window.display();
-}
-
-void Game::Restart()
-{
-    Init();
-}
-
 int Game::GameLoop()
 {
     while (_window.isOpen())
@@ -384,4 +318,28 @@ int Game::GameLoop()
     }
 
     return EXIT_SUCCESS;
+}
+
+void Game::CreateBackground()
+{
+    if (!_backgroundTexture.loadFromFile("data/sprites/Backgrounds/blue.png"))
+    {
+        return; // error 
+    }
+
+    _backgroundSprite.setTexture(_backgroundTexture);
+    float factorX = _window.getSize().x / _backgroundSprite.getGlobalBounds().width;
+    float factorY = _window.getSize().y / _backgroundSprite.getGlobalBounds().height;
+
+    for (int width = 0; width < factorX; width++)
+    {
+        for (int height = 0; height < factorY; height++)
+        {
+            sf::Sprite sprite;
+            sprite.setTexture(_backgroundTexture);
+            sprite.setPosition(sprite.getLocalBounds().width * width,
+                sprite.getLocalBounds().height * height);
+            _background.emplace_back(sprite);
+        }
+    }
 }

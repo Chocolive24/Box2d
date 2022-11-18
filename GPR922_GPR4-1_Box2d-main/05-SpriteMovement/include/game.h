@@ -36,7 +36,7 @@ private:
 	sf::RenderWindow m_window;
 
 	// Sounds
-	SoundManager* m_soundManager = SoundManager::Instance();
+	Sound* m_soundManager = Sound::Instance();
 
 	// The physical world -------------------------------------
 	b2Vec2 m_gravity;

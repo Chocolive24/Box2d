@@ -52,24 +52,14 @@ Player::Player(Game& game) : _game(game)
 
 void Player::Move(b2Vec2 force)
 {
-	_body->SetLinearVelocity(_body->GetLinearVelocity() + force);
-
-    if (b2Abs(_body->GetLinearVelocity().Length()) < Properties::epsilonLinearVelocity) 
+    if (_canBeControlled)
     {
-        _body->SetLinearVelocity(b2Vec2_zero);
-    }
-}
+        _body->SetLinearVelocity(_body->GetLinearVelocity() + force);
 
-
-// -----------------------------------------------------------------------------------------------------------------
-
-void Player::Rotate2(float radianPerSecond)
-{
-    _body->SetAngularVelocity(radianPerSecond);
-
-    if (b2Abs(_body->GetAngularVelocity()) < Properties::epsilonLinearVelocity)
-    {
-        _body->SetAngularVelocity(0.0f);
+        if (b2Abs(_body->GetLinearVelocity().Length()) < Properties::epsilonLinearVelocity)
+        {
+            _body->SetLinearVelocity(b2Vec2_zero);
+        }
     }
 }
 
@@ -77,29 +67,29 @@ void Player::Rotate2(float radianPerSecond)
 
 void Player::Shoot(int level)
 {
-    b2Vec2 startPos(_body->GetPosition().x, _body->GetPosition().y + 0.6f);
-    float width = Utility::PixelToMeters(_sprite.getGlobalBounds().width);
-
-    const float angle = Utility::RadToDeg(_body->GetAngle());
-    const b2Vec2 frontPosition = Utility::PixelsToMeters(GetFrontPosition());
-    const float spread = 20.0f / 2.0f;
-
-    for (int i = 0; i < level; i++)
+    if (_canBeControlled)
     {
-        float angleAfterSpread = angle - spread + 
-								(spread * 2.f * static_cast<float>(i) + spread) / static_cast<float>(level);
+        const float angle = Utility::RadToDeg(_body->GetAngle());
+        const b2Vec2 frontPosition = Utility::PixelsToMeters(GetFrontPosition());
+        const float spread = 20.0f / 2.0f;
 
-        if (level == 1)
+        for (int i = 0; i < level; i++)
         {
-            angleAfterSpread = angle;
+            float angleAfterSpread = angle - spread +
+                (spread * 2.f * static_cast<float>(i) + spread) / static_cast<float>(level);
+
+            if (level == 1)
+            {
+                angleAfterSpread = angle;
+            }
+
+            _lasers.emplace_back(_game, frontPosition, angleAfterSpread);
+
+            // Shoot the projectile here with all information
         }
 
-        _lasers.emplace_back(_game, frontPosition, angleAfterSpread);
-
-        // Shoot the projectile here with all information
+        _canShoot = false;
     }
-
-    _canShoot = false;
 }
 
 // -----------------------------------------------------------------------------------------------------------------
@@ -108,11 +98,10 @@ void Player::ThrowBomb(b2World& world)
 {
     if (_bombNbr > 0)
     {
-        b2Vec2 startPos(_body->GetPosition().x, (_body->GetPosition().y + 0.8f));
-        
-        _bombs.emplace_back(_game, startPos);
+        const b2Vec2 frontPosition = Utility::PixelsToMeters(GetFrontPosition());
+        const float angle = Utility::RadToDeg(_body->GetAngle());
 
-        _bombs.back().Move();
+        _bombs.emplace_back(_game, frontPosition, angle);
 
         _bombNbr -= 1;
     }
@@ -128,14 +117,17 @@ void Player::update(sf::Time elapsed)
     GameObject::update(elapsed);
 
     // Make the player rotate to the mouse position angle.
-    const auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(_game.GetWindow()));
-    const auto playerPosition = _sprite.getPosition();
-    const auto position = mousePosition - playerPosition;
+    if (_canBeControlled)
+    {
+        const auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(_game.GetWindow()));
+        const auto playerPosition = _sprite.getPosition();
+        const auto position = mousePosition - playerPosition;
 
-    // Get angle between two positions
-    const float angle = Utility::RadToDeg(atan2(position.y, position.x));
+        // Get angle between two positions
+        const float angle = Utility::RadToDeg(atan2(position.y, position.x));
 
-    Rotate(angle);
+        Rotate(angle);
+    }
 
     // -----------------------------------------------------------------------------------------------------
 	// Update the player's data.
@@ -154,6 +146,17 @@ void Player::update(sf::Time elapsed)
     {
         _canShoot = true;
         _lastShotDuration = sf::Time::Zero;
+    }
+
+    if (IsInvincible())
+    {
+        _invicibiltyDuration += elapsed;
+
+        if (_invicibiltyDuration.asSeconds() >= Properties::INVINCIBILITY_TIME)
+        {
+            _isInvincible = false;
+            _invicibiltyDuration = sf::Time::Zero;
+        }
     }
 
     for (auto& laser : _lasers)

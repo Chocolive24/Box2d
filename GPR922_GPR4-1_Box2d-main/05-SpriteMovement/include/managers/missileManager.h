@@ -8,7 +8,7 @@
 
 #include "missile.h"
 #include "ship.h"
-#include "managers/soundManager.h"
+#include "managers/Sound.h"
 
 class MissileManager : public sf::Drawable {
 

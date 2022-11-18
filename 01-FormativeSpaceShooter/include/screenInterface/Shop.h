@@ -23,13 +23,14 @@ private:
 public:
 	Shop(Score& score);
 
-	Upgrade& GetLaserUpgrade() { return _laserUpgrade; }
-	Upgrade& GetBombUpgrade() { return _bombUpgrade; }
-	Upgrade& GetHpUpgrade() { return _hpUpgrade; }
-
 	bool BuyAnUpgrade(Upgrade& upgrade);
 
 	void Update();
+	void UpdateUpgrade(Upgrade& upgrade);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+	Upgrade& GetLaserUpgrade() { return _laserUpgrade; }
+	Upgrade& GetBombUpgrade() { return _bombUpgrade; }
+	Upgrade& GetHpUpgrade() { return _hpUpgrade; }
 };

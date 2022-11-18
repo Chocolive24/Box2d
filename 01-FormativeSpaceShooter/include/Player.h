@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Bomb.h"
+#include "weapon/Bomb.h"
 #include <box2d/b2_body.h>
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_polygon_shape.h>
 #include <box2d/b2_world.h>
 #include "core/GameObject.h"
-#include "Laser.h"
+#include "weapon/Laser.h"
 #include <SFML/Graphics.hpp>
 
 #include <list>
@@ -27,7 +27,6 @@ private:
     std::list<Laser> _lasers;
     std::list<Bomb> _bombs;
     int _bombNbr = 1;
-    bool _isAnExplosion = false;
 
     // -------------------------------------------------------------------------------------------
 	// Player's data attributes.
@@ -37,14 +36,16 @@ private:
     int _currentLife;
     int _maxLife = 100;
 
-    int _maxLives = 3;
+    int _maxLives = 1;
 
     const float _rotationSpeed = 40.0f;
 
-    bool _canMove = true;
+    bool _canBeControlled = true;
     bool _canShoot = true;
     sf::Time _lastShotDuration;
 
+    bool _isInvincible = false;
+    sf::Time _invicibiltyDuration;
     bool _isDead = false;
 
     // -------------------------------------------------------------------------------------------
@@ -56,7 +57,6 @@ public:
     // Moving methods.
 
     void Move(b2Vec2 force);
-    void Rotate2(float radianPerSecond);
     void Rotate(float degreesAngle);
 
     // -------------------------------------------------------------------------------------------
@@ -72,42 +72,40 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
     // -------------------------------------------------------------------------------------------
-    // Methods to add lasers.
-
-    void AddLaserLvl1(float spriteWidth);
-    void AddLaserLvl2(float spriteWidth);
-    void AddLaserLvl3(float spriteWidth);
-    void AddLaserLvl4(float spriteWidth);
-    void AddLaserLvl5(float spriteWidth);
-
-    // -------------------------------------------------------------------------------------------
     // Getters and Setters.
 
     b2Body* GetBody() { return _body; }
 
+    void SetPosition(float x, float y) { _body->SetTransform(b2Vec2(x, y), 0.0f); }
     sf::Vector2f GetFrontPosition() const;
     float GetDeltaAngle(float angle);
-
     void SetLinearVelocity(b2Vec2 newVelocity) { _body->SetLinearVelocity(newVelocity); }
-    void SetLinearDamping(float newDamping) { _body->SetLinearDamping(newDamping); }
+
     int GetBombNbr() { return _bombNbr; }
     void SetBombNumber(int nbr) { _bombNbr += nbr; }
-    void SetNewLife(int nbr) { _maxLife += nbr; _currentLife += nbr; }
-    bool CanMove() { return _canMove; }
-    void SetToNotMove() { _canMove = false; }
+
+    bool CanBeControlled() { return _canBeControlled; }
+    void SetControl(bool canBeControlled) { _canBeControlled = canBeControlled; }
+
+    bool IsInvincible() { return _isInvincible; }
+    void SetInvincibility(bool isInvicible) { _isInvincible = isInvicible; }
+
     bool IsDead() { return _isDead; }
     void SetToDead() { _isDead = true; }
 
+    void SetNewLife(int nbr) { _maxLife += nbr; _currentLife += nbr; }
     int GetCurrentLife() { return _currentLife; }
     int GetMaxLife() { return _maxLife; }
     int GetMaxLives() { return _maxLives; }
+    void SetCurrentLifeToMax() { _currentLife = _maxLife; }
+    void TakeDamage(int damage) { _currentLife -= damage; }
+
     bool CanShoot() { return _canShoot; }
     void SetCanShootToFalse() { _canShoot = false; }
 
-    void SetPosition(float x, float y) { _body->SetTransform(b2Vec2(x, y), 0.0f); }
-
-    void SetCurrentLifeToMax() { _currentLife = _maxLife; }
-    void TakeDamage(int damage) { _currentLife -= damage; }
+    std::list<Laser>& GetLasers() { return _lasers; }
+    std::list<Bomb>& GetBombs() { return _bombs; }
+    void SetLinearDamping(float damping) { _body->SetLinearDamping(damping); }
 
     // -------------------------------------------------------------------------------------------
 };

@@ -9,10 +9,17 @@ class Animations
 private:
 	Player& _player;
 
-	sf::Time _duration;
+	sf::Time _totalDuration;
+	sf::Time _alphaEffectDuration;
+
+	bool _playAnimation = false;
 
 public:
 	Animations(Player& player);
 
-	void CollisionWithMeteorAnim(sf::Time& elapsed, bool& isACollision);
+	void PlayDamageAnimation(sf::Time elapsed);
+
+	void Update(sf::Time elapsed);
+
+	void CanPlayAnimation(bool canPlay) { _playAnimation = canPlay; }
 };

@@ -18,13 +18,14 @@ public:
 	inline static sf::Color DARK_GREEN = sf::Color(0, 50, 0);
 	inline static sf::Color RED = sf::Color(150, 0, 0);
 
-	inline static int INVINCIBILITY_EFFECT = 50;
+	inline static int INVINCIBILITY_EFFECT = 100;
 	static constexpr float maxAngularVelocity = 0.5;
 	static constexpr float epsilonAngularVelocity = 0.01f;
 	static constexpr float maxLinearVelocity = 10.0;
 	static constexpr float epsilonLinearVelocity = 0.01f;
 
 	static constexpr int METEOR_POINTS = 10;
+	static constexpr int METEOR_DAMAGE = 20;
 
 	static constexpr float TITLE_WAVE_TIME = 2.0f;
 	static constexpr float LASER_COOLDOWN = 0.2f;

@@ -1,6 +1,7 @@
 #include "core/Utility.h"
 
-
+#include <corecrt_math_defines.h>
+#include <random>
 
 #include "core/Properties.h"
 

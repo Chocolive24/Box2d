@@ -38,46 +38,62 @@ void UIManager::InitLives()
 
 void UIManager::Update(sf::Time elapsed, WaveType type)
 {
-    _lifeBar.Update();
-    if (!_lives.empty())
+    if (!_player.IsDead())
     {
-	    _lives.back().Update(elapsed, _lives);
-    }
-    _score.Update();
 
-    UpdateWaveNumberText();
+        _lifeBar.Update();
 
-    _winConditionText.SetString(_waveManager.GetWinConditionToString(type));
-    _winConditionText.SetOriginToMiddle();
-
-    _titleWaveDuration = sf::Time::Zero;
-
-    _waveStateText.SetString(_waveManager.GetWaveStateToString());
-    _waveStateText.SetOriginToMiddle();
-
-    if (!_loaded)
-    {
-        if (_waveManager.GetRandomWaveNumber() == (int)WaveType::DESTROY_METEOR)
+        if (!_lives.empty())
         {
-            _entitiyIcon.InitSprite("data/sprites/PNG/Meteors/meteorBrown_big1.png");
-            _entitiyIcon.scale(0.5f, 0.5);
-            std::cout << "Init" << std::endl;
-            _loaded = true;
+            _lives.back().Update(elapsed, _lives);
         }
+
+        UpdateBombsIcon();
+
+        UpdateWaveNumberText();
+
+        _winConditionText.SetString(_waveManager.GetWinConditionToString(type));
+        _winConditionText.SetOriginToMiddle();
+
+        _titleWaveDuration = sf::Time::Zero;
+
+        _waveStateText.SetString(_waveManager.GetWaveStateToString());
+        _waveStateText.SetOriginToMiddle();
+
+        if (!_loaded)
+        {
+            if (_waveManager.GetRandomWaveNumber() == (int)WaveType::DESTROY_METEOR)
+            {
+                _entitiyIcon.InitSprite("data/sprites/PNG/Meteors/meteorBrown_big1.png");
+                _entitiyIcon.scale(0.5f, 0.5);
+                _loaded = true;
+            }
+        }
+
+        if (_waveManager.IsWaveFinished() && _waveManager.GetRandomWaveNumber() == (int)EntityToDestroyType::METEOR)
+        {
+            _loaded = false;
+
+            // Reset the scale to the original size otherwise when the icon is redrawn
+            // its scale will be reduced a second time by two.
+            _entitiyIcon.scale(2, 2);
+        }
+
+        _entitiyIcon.setPosition(Properties::WINDOW_WIDTH / 2.0f +
+            _waveStateText.GetLocalBounds().width,
+            Properties::WINDOW_HEIGHT * 0.038f);
     }
 
-    if (_waveManager.IsWaveFinished() && _waveManager.GetRandomWaveNumber() == (int)EntityToDestroyType::METEOR)
+    else
     {
-        _loaded = false;
+	    _waveReached.Init("YOU REACHED WAVE " + std::to_string(_waveManager.GetWaveNumber()),
+            Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT / 5.0f,
+            60, sf::Color::Red);
 
-        // Reset the scale to the original size otherwise when the icon is redrawn
-        // its scale will be reduced a second time by two.
-        _entitiyIcon.scale(2, 2);
+        _score.SetPosition(Properties::WINDOW_WIDTH / 2.0f, Properties::WINDOW_HEIGHT / 4.0f);
     }
 
-    _entitiyIcon.setPosition(Properties::WINDOW_WIDTH / 2.0f +
-        _waveStateText.GetLocalBounds().width,
-        Properties::WINDOW_HEIGHT * 0.038f);
+    _score.Update();
 }
 
 void UIManager::UpdateWaveNumberText()
@@ -86,27 +102,56 @@ void UIManager::UpdateWaveNumberText()
     _waveNumberText.SetOriginToMiddle();
 }
 
+void UIManager::UpdateBombsIcon()
+{
+    _bombsIcon.clear();
+
+    for (int i = 0; i < _player.GetBombNbr(); i++)
+    {
+        _bombsIcon.emplace_front();
+
+        _bombsIcon.front().SetPosition(_lifeBar.GetPosition().x +
+            _bombsIcon.front().GetGlobalBounds().width * i * 1.2f - 2.5f,
+            _lifeBar.GetPosition().y + 5 * _lifeBar.GetLocalBounds().height);
+    }
+}
+
 void UIManager::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(_lifeBar);
-
-    for (auto& life : _lives)
+    if (!_player.IsDead())
     {
-        target.draw(life);
+
+        target.draw(_lifeBar);
+
+        for (auto& life : _lives)
+        {
+            target.draw(life);
+        }
+
+        for (auto& bombIcon : _bombsIcon)
+        {
+            target.draw(bombIcon);
+        }
+
+        target.draw(_score);
+
+        if (!_waveManager.IsTitleTimeDone())
+        {
+            target.draw(_waveNumberText);
+            target.draw(_winConditionText);
+        }
+
+        target.draw(_waveStateText);
+
+        if (_waveManager.GetRandomWaveNumber() == (int)WaveType::DESTROY_METEOR)
+        {
+            target.draw(_entitiyIcon);
+        }
     }
 
-    target.draw(_score);
-
-    if (!_waveManager.IsTitleTimeDone())
+    else 
     {
-        target.draw(_waveNumberText);
-        target.draw(_winConditionText);
-    }
-
-    target.draw(_waveStateText);
-
-    if (_waveManager.GetRandomWaveNumber() == (int)WaveType::DESTROY_METEOR)
-    {
-        target.draw(_entitiyIcon);
+        target.draw(_waveReached);
+        target.draw(_score);
     }
 }

@@ -4,7 +4,7 @@
 
 #include "core/userData.h"
 #include "core/box2DEntity.h"
-#include "managers/soundManager.h"
+#include "managers/Sound.h"
 
 class Game;
 

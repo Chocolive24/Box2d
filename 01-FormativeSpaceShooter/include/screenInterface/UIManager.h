@@ -1,12 +1,12 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-#include "BombUI.h"
-#include "DestroyWaveUI.h"
+#include "BombIcon.h"
 #include "LifeBar.h"
 #include "Score.h"
+#include "Wave/WaveManager.h"
 
-class Life;
+#include "Life.h"
 
 // UserInterface Manager
 class UIManager : public sf::Drawable
@@ -16,26 +16,26 @@ public:
 
 	LifeBar _lifeBar;
 	std::list<Life> _lives;
+	std::list<BombIcon> _bombsIcon;
 	Score _score;
 
 	WaveManager& _waveManager;
 
 	sf::Time _titleWaveDuration;
-
 	GameText _waveNumberText;
 	GameText _winConditionText;
+	GameText _waveReached;
 
 	GameText _waveStateText;
 	DrawableObject _entitiyIcon;
 	bool _loaded = false;
-
-	
 
 public:
 	UIManager(WaveManager& waveManager, Player& player);
 
 	void InitLives();
 
+	void UpdateBombsIcon();
 	void UpdateWaveNumberText();
 	
 	void Update(sf::Time elapsed, WaveType type);

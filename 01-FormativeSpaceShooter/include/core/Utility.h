@@ -1,14 +1,6 @@
 #pragma once
 
-
-#include <corecrt_math_defines.h>
-#include <math.h>
-#include <box2d/b2_body.h>
-#include <box2d/b2_fixture.h>
-#include <box2d/b2_polygon_shape.h>
 #include <box2d/b2_world.h>
-
-#include <random>
 
 #include "SFML/Graphics.hpp"
 
@@ -27,7 +19,4 @@ public:
 	static float GetRandomFloat(float min, float max);
 	static int GetRandomInt(int min, int max);
 
-	// -------------------------------------------------------------------------------------
 };
-
-

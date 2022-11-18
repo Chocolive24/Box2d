@@ -1,4 +1,3 @@
-
 #include "screenInterface/LifeBar.h"
 
 #include "Player.h"

@@ -14,3 +14,7 @@
 * adpater la police.
 * pouvoir quitter le jeu.
 * menu pause.
+
+* La classe life doit juste gérer le nombre de vie.
+* le ui manager update en boucle le nombre d'icone ' de vie par rapport au currentLifeNbr du joueur
+* la class life doit devenir une sorte de manager.

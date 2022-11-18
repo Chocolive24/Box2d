@@ -5,9 +5,8 @@ class Player;
 class Meteor;
 class Bomb;
 class Laser;
-class Explosion;
+class BombExplosion;
 class Edge;
-
 
 enum class UserDataType
 {
@@ -27,7 +26,7 @@ private:
 	Meteor* _meteor = nullptr;
 	Bomb* _bomb = nullptr;
 	Laser* _laser = nullptr;
-	Explosion* _explosion = nullptr;
+	BombExplosion* _explosion = nullptr;
 	Edge* _edge = nullptr;
 
 
@@ -60,7 +59,7 @@ public:
 
 	}
 
-	UserData(Explosion& explosion) :
+	UserData(BombExplosion& explosion) :
 		_type(UserDataType::EXPLOSION),
 		_explosion(&explosion)
 	{
@@ -73,13 +72,12 @@ public:
 	{
 		
 	}
-		
 
 	Player* GetPlayer() { return _player; }
 	Meteor* GetMeteor() { return _meteor; }
 	Bomb* GetBomb() { return _bomb; }
 	Laser* GetLaser() { return _laser; }
-	Explosion* GetExplosion() { return _explosion; }
+	BombExplosion* GetExplosion() { return _explosion; }
 	Edge* GetEdge() { return _edge; }
 
 	UserDataType GetType() { return _type; }

@@ -128,16 +128,51 @@ void Meteor::update(sf::Time elapsed)
 {
     GameObject::update(elapsed);
 
+    if (_isDestroyed && !_isAnExplosion)
+    {
+        _explosion.Init(Utility::MetersToPixels(_body->GetPosition()));
+        _isAnExplosion = true;
+    }
+
+    if (_isAnExplosion)
+    {
+        _explosion.Update(elapsed);
+
+        if (_explosion.IsExplosionFinished())
+        {
+            _hasExploded = true;
+        }
+    }
+
+    if (CheckIfOutOfScreen())
+    {
+        _hasExploded = true;
+    }
+}
+
+bool Meteor::CheckIfOutOfScreen()
+{
     if (_body->GetPosition().x < Utility::PixelToMeters(-60.0f) ||
         _body->GetPosition().x > Utility::PixelToMeters(Properties::WINDOW_WIDTH + 60) ||
         _body->GetPosition().y > -(Utility::PixelToMeters(-60.0f)) ||
         _body->GetPosition().y < -(Utility::PixelToMeters(Properties::WINDOW_HEIGHT + 60)))
     {
-        SetToDestroyed();
+        return true;
     }
+
+    return false;
 }
 
 void Meteor::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    GameObject::draw(target, states);
+    if (!_isDestroyed)
+    {
+        GameObject::draw(target, states);
+    }
+
+    else
+    {
+        target.draw(_explosion);
+    }
+    
 }
