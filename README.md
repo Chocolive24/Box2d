@@ -7,15 +7,27 @@ The last folder is a template from our teacher to help us.
 
 # 01-Formative Space Shooter.  
 
-This is a SFML program which draw paintings with the mouse clicks.  
+This is a Space shooter game.  
+You can move your ship in every direction.  
+You can shoot laser and bombs in the direction of your mouse cursor.  
 
 ## Basics element requiered in the program :  
 
-* Using SFML Frameworks, figure out an algorithm to make this picture from Vera Molnar.  
-* Each click on a mouse button redraw a new picture following the same principles.  
-* https://canvas.sae.edu/courses/13839/files/851583/preview  
-* https://canvas.sae.edu/courses/13839/files/851582/preview  
+* Make a space shooter using SFML and Box2D shooter
+    * SFML : uses of sprites, sounds and game core loop
+        * incorporate images
+        * triggers projectiles on inputs
+        * triggers sounds on collisions
+    * Box 2D : uses of forces, colliders, forces to make projectiles
+ 
 
 ## Learning Objectives:  
 
-* Create algorithms for specific tasks.  
+Learning Objectives:
+* Describe the principles of object-oriented programming
+* Explain characteristics of algorithms
+* Identify game-related core mathematics
+* Produce stable code using object-oriented programming 
+* Create algorithms for specific tasks 
+* Implement core mathematics in game code 
+* Plan and manage the allocated time to successfully meet given milestones and deadlines
